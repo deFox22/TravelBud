@@ -1,0 +1,41 @@
+/* ============================================================
+   Base
+   ============================================================ */
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; }
+body {
+  margin: 0;
+  background: var(--bg) var(--topo);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+/* Film grain over everything, very faint. */
+body::after { content: ''; position: fixed; inset: 0; background: var(--grain); opacity: 0.05; pointer-events: none; z-index: 9999; mix-blend-mode: multiply; }
+:root[data-theme='dark'] body::after { mix-blend-mode: screen; opacity: 0.04; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme='light']) body::after { mix-blend-mode: screen; opacity: 0.04; } }
+h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.015em; margin: 0; line-height: 1.15; }
+h1 { font-size: 34px; }
+h2 { font-size: 22px; }
+h3 { font-size: 18px; }
+p { margin: 0; }
+button, input, select, textarea { font: inherit; color: inherit; }
+a { color: var(--primary); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+img { display: block; max-width: 100%; }
+::selection { background: var(--primary-soft); }
+::placeholder { color: var(--muted); opacity: 0.7; }
+:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; border-radius: 6px; }
+* { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes fade { from { opacity: 0; } }
+@keyframes rise { from { transform: translateY(16px) scale(0.98); opacity: 0; } }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes pulse { 0% { box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35), 0 0 0 0 rgba(217, 164, 65, 0.6); } 100% { box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35), 0 0 0 16px rgba(217, 164, 65, 0); } }
+@keyframes aurora { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+@keyframes shimmer { to { background-position: 200% center; } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; } }
