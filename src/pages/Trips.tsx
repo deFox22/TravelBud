@@ -60,6 +60,10 @@ export function Trips({ focusId, clearFocus, go }: { focusId: string | null; cle
   const open = data.trips.find(t => t.id === openId)
 
   const coverFor = (t: Trip) => t.cover ?? albumOf(t, data.memories).find(m => m.photos[0])?.photos[0]
+  // The trail lives at the top of this tab: the trip you are on, or the one leaving within a week.
+  const live = data.trips
+    .filter(t => t.status !== 'completed' && t.startDate && t.endDate && t.endDate >= today && daysUntil(t.startDate) <= 7)
+    .sort((a, b) => a.startDate.localeCompare(b.startDate))[0]
 
   if (open) {
     return <TripDetail trip={open} onBack={() => setOpenId(null)} go={go} />
@@ -68,7 +72,7 @@ export function Trips({ focusId, clearFocus, go }: { focusId: string | null; cle
   return (
     <div className="page">
       <PageHeader
-        title="Trips"
+        title="Trail"
         subtitle={data.trips.length ? `${plural(groups.upcoming.length, 'trip')} coming up · ${plural(groups.past.length, 'trip')} taken` : 'Plan the next one, remember the last one'}
         actions={
           <>
@@ -102,6 +106,7 @@ export function Trips({ focusId, clearFocus, go }: { focusId: string | null; cle
         />
       ) : (
         <>
+          {live && <Tracker trip={live} go={go} />}
           <TripGroup title="Coming up" trips={groups.upcoming} onOpen={setOpenId} coverFor={coverFor} />
           <TripGroup title="Dreaming about" trips={groups.dreaming} onOpen={setOpenId} variant="dream" coverFor={coverFor} />
           <TripGroup title="Past trips" trips={groups.past} onOpen={setOpenId} variant="past" coverFor={coverFor} />

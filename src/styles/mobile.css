@@ -55,11 +55,12 @@
   .content { padding-top: 16px; }
   .page.home > .hero-greet { order: 0; }
   .page.home > .fox-says, .page.home > .postcard-wrap { order: 1; }
-  .page.home > .tracker { order: 2; }
+  .page.home > .tracker, .page.home > .trip-card-home, .page.home > .card { order: 2; }
   .page.home > .alerts { order: 3; }
   .page.home > .welcome { order: 3; }
   .page.home > .stat-row, .page.home > .stat-strip { order: 4; }
-  .page.home > .home-grid { order: 5; }
+  .page.home > .mem-strip { order: 5; }
+  .page.home > .home-grid { order: 6; }
   .hero-greet { align-items: flex-start; flex-direction: column; gap: 2px; }
   .hero-greet h1 { font-size: 30px; }
   .hero-date { order: -1; }

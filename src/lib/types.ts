@@ -1,4 +1,4 @@
-export type Page = 'home' | 'memories' | 'places' | 'trips' | 'sitters' | 'wallet' | 'insights'
+export type Page = 'home' | 'memories' | 'places' | 'trips' | 'sitters' | 'wallet' | 'insights' | 'badges' | 'me'
 
 export type PlaceStatus = 'visited' | 'wishlist'
 
@@ -208,6 +208,10 @@ export interface Profile {
   homeBase: string
   theme: Theme
   lastBackup?: string
+  /** Badges you have been shown as earned, with the day each unlocked. */
+  badges?: { id: string; earnedAt: string }[]
+  /** Day Scout's postcard was dismissed with "Later"; it rests until tomorrow. */
+  postcardDismissed?: string
 }
 
 export interface AppData {

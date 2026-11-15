@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Page, Trip } from './lib/types'
 import { Fox } from './components/Fox'
 import { SharedTrip } from './components/SharedTrip'
@@ -11,30 +11,38 @@ import { Trips } from './pages/Trips'
 import { Sitters } from './pages/Sitters'
 import { Wallet } from './pages/Wallet'
 import { Insights } from './pages/Insights'
+import { Badges } from './pages/Badges'
+import { Me } from './pages/Me'
 import { Settings } from './pages/Settings'
 import { Palette } from './components/Palette'
-import { Home as HomeIcon, Camera, Map as MapIcon, Plane, KeyRound, IdCard, ChartColumn, Settings as SettingsIcon, Search, Menu, type LucideIcon } from 'lucide-react'
+import { UnlockToast } from './components/Toast'
+import { BADGES, earnedIds, type BadgeDef } from './lib/badges'
+import { Home as HomeIcon, Camera, Map as MapIcon, Route, Award, User, KeyRound, IdCard, ChartColumn, Settings as SettingsIcon, Search, type LucideIcon } from 'lucide-react'
 import { todayISO } from './lib/util'
 
-const NAV: { id: Page; label: string; icon: LucideIcon; primary?: boolean }[] = [
-  { id: 'home', label: 'Home', icon: HomeIcon, primary: true },
-  { id: 'memories', label: 'Memories', icon: Camera, primary: true },
-  { id: 'places', label: 'Places', icon: MapIcon, primary: true },
-  { id: 'trips', label: 'Trips', icon: Plane, primary: true },
-  { id: 'sitters', label: 'Sitters', icon: KeyRound },
+/* Five tabs, as the kit lays them out: Home, Trail, Places, Badges, Me.
+   Everything else lives on the sidebar on wide screens and behind Me on a phone. */
+const NAV: { id: Page; label: string; icon: LucideIcon; tab?: boolean }[] = [
+  { id: 'home', label: 'Home', icon: HomeIcon, tab: true },
+  { id: 'trips', label: 'Trail', icon: Route, tab: true },
+  { id: 'places', label: 'Places', icon: MapIcon, tab: true },
+  { id: 'badges', label: 'Badges', icon: Award, tab: true },
+  { id: 'me', label: 'Me', icon: User, tab: true },
+  { id: 'memories', label: 'Memories', icon: Camera },
   { id: 'wallet', label: 'Wallet', icon: IdCard },
+  { id: 'sitters', label: 'Sitters', icon: KeyRound },
   { id: 'insights', label: 'Insights', icon: ChartColumn },
 ]
 
 export default function App() {
-  const { data, ready } = useStore()
+  const { data, ready, update } = useStore()
   const [page, setPage] = useState<Page>('home')
   const [nonce, setNonce] = useState(0)
   const [focusId, setFocusId] = useState<string | null>(null)
   const [settingsOpen, setSettingsOpen] = useState(false)
-  const [moreOpen, setMoreOpen] = useState(false)
   const [paletteOpen, setPaletteOpen] = useState(false)
   const [shared, setShared] = useState<Trip | null>(() => readShareFromUrl())
+  const [toasts, setToasts] = useState<BadgeDef[]>([])
 
   // Theme: 'auto' leaves it to the OS, otherwise pin it on <html>.
   const theme = data.profile.theme
@@ -56,14 +64,33 @@ export default function App() {
     return () => window.removeEventListener('keydown', onKey)
   }, [])
 
+  // Badge engine: whenever the data changes, any badge newly earned is recorded and announced.
+  // The first run on an existing collection records silently, so an upgrade doesn't fire nine toasts.
+  const seeded = useRef(false)
+  useEffect(() => {
+    if (!ready) return
+    const have = new Set((data.profile.badges ?? []).map(b => b.id))
+    const fresh = earnedIds(data).filter(id => !have.has(id))
+    if (fresh.length === 0) {
+      seeded.current = true
+      return
+    }
+    const quiet = !seeded.current && data.profile.badges === undefined && fresh.length > 1
+    seeded.current = true
+    const today = todayISO()
+    update(d => ({ ...d, profile: { ...d.profile, badges: [...(d.profile.badges ?? []), ...fresh.map(id => ({ id, earnedAt: today }))] } }))
+    if (!quiet) setToasts(t => [...t, ...BADGES.filter(b => fresh.includes(b.id))])
+  }, [data, ready, update])
+  const popToast = useCallback(() => setToasts(t => t.slice(1)), [])
+
   const go = useCallback((p: Page, id?: string) => {
     setFocusId(id ?? null)
     setPage(p)
     setNonce(n => n + 1) // remount the page so nav clicks always land on that page's top level
-    setMoreOpen(false)
     window.scrollTo({ top: 0 })
   }, [])
   const clearFocus = useCallback(() => setFocusId(null), [])
+  const openSettings = useCallback(() => setSettingsOpen(true), [])
 
   if (!ready)
     return (
@@ -86,12 +113,13 @@ export default function App() {
     trips: data.trips.length,
     sitters: data.sitters.length,
     wallet: data.docs.length + data.loyalty.length + data.contacts.length,
+    badges: data.profile.badges?.length || undefined,
   }
 
-  const secondary = NAV.filter(n => !n.primary)
-  const moreActive = secondary.some(n => n.id === page)
   const today = todayISO()
   const activeTrip = data.trips.find(t => t.status !== 'completed' && t.startDate && t.endDate && t.startDate <= today && t.endDate >= today)
+  const tabs = NAV.filter(n => n.tab)
+  const more = NAV.filter(n => !n.tab)
 
   return (
     <div className="app">
@@ -108,7 +136,17 @@ export default function App() {
           <kbd>Ctrl K</kbd>
         </button>
         <nav>
-          {NAV.map(n => (
+          {tabs.map(n => (
+            <button key={n.id} type="button" className={'nav-item' + (page === n.id ? ' active' : '')} onClick={() => go(n.id)}>
+              <span className="ico">
+                <n.icon size={18} strokeWidth={2} />
+              </span>
+              {n.label}
+              {(counts[n.id] ?? 0) > 0 && <span className="count">{counts[n.id]}</span>}
+            </button>
+          ))}
+          <span className="nav-group">Also</span>
+          {more.map(n => (
             <button key={n.id} type="button" className={'nav-item' + (page === n.id ? ' active' : '')} onClick={() => go(n.id)}>
               <span className="ico">
                 <n.icon size={18} strokeWidth={2} />
@@ -119,7 +157,7 @@ export default function App() {
           ))}
         </nav>
         <div className="sidebar-foot">
-          <button type="button" className="nav-item" onClick={() => setSettingsOpen(true)}>
+          <button type="button" className="nav-item" onClick={openSettings}>
             <span className="ico">
               <SettingsIcon size={18} strokeWidth={2} />
             </span>
@@ -134,6 +172,8 @@ export default function App() {
           {page === 'memories' && <Memories focusId={focusId} clearFocus={clearFocus} />}
           {page === 'places' && <Places focusId={focusId} clearFocus={clearFocus} go={go} />}
           {page === 'trips' && <Trips focusId={focusId} clearFocus={clearFocus} go={go} />}
+          {page === 'badges' && <Badges go={go} />}
+          {page === 'me' && <Me go={go} openSettings={openSettings} />}
           {page === 'sitters' && <Sitters />}
           {page === 'wallet' && <Wallet />}
           {page === 'insights' && <Insights />}
@@ -141,69 +181,35 @@ export default function App() {
       </main>
 
       <nav className="bottom-nav">
-        {NAV.filter(n => n.primary).map(n => (
-          <button key={n.id} type="button" className={page === n.id ? 'active' : ''} onClick={() => go(n.id)}>
-            <span className="ico">
+        {tabs.map(n => {
+          const on = page === n.id || (n.id === 'me' && more.some(m => m.id === page))
+          return (
+            <button key={n.id} type="button" className={on ? 'active' : ''} onClick={() => go(n.id)}>
+              <span className="ico">
                 <n.icon size={18} strokeWidth={2} />
               </span>
-            {n.label}
-          </button>
-        ))}
-        <button type="button" className={moreActive || moreOpen ? 'active' : ''} onClick={() => setMoreOpen(v => !v)}>
-          <span className="ico">
-            <Menu size={18} strokeWidth={2} />
-          </span>
-          More
-        </button>
+              {n.label}
+            </button>
+          )
+        })}
       </nav>
-
-      {moreOpen && (
-        <div className="more-backdrop" onClick={() => setMoreOpen(false)}>
-          <div className="more-sheet" onClick={e => e.stopPropagation()}>
-            <button
-              type="button"
-              className="nav-item"
-              onClick={() => {
-                setMoreOpen(false)
-                setPaletteOpen(true)
-              }}
-            >
-              <span className="ico">
-                <Search size={18} strokeWidth={2} />
-              </span>
-              Search anything
-            </button>
-            {secondary.map(n => (
-              <button key={n.id} type="button" className={'nav-item' + (page === n.id ? ' active' : '')} onClick={() => go(n.id)}>
-                <span className="ico">
-                <n.icon size={18} strokeWidth={2} />
-              </span>
-                {n.label}
-                {(counts[n.id] ?? 0) > 0 && <span className="count">{counts[n.id]}</span>}
-              </button>
-            ))}
-            <button
-              type="button"
-              className="nav-item"
-              onClick={() => {
-                setMoreOpen(false)
-                setSettingsOpen(true)
-              }}
-            >
-              <span className="ico">
-              <SettingsIcon size={18} strokeWidth={2} />
-            </span>
-              Settings & backup
-            </button>
-          </div>
-        </div>
-      )}
 
       <button type="button" className="fab" aria-label="Capture a moment" title="Capture a moment" onClick={() => go('memories', activeTrip ? `new:${activeTrip.id}` : 'new')}>
         <Camera size={26} strokeWidth={2.2} />
       </button>
       <span className="fab-label">Capture</span>
 
+      {toasts[0] && (
+        <UnlockToast
+          key={toasts[0].id}
+          badge={toasts[0]}
+          onClose={popToast}
+          onOpen={() => {
+            popToast()
+            go('badges')
+          }}
+        />
+      )}
       {settingsOpen && <Settings onClose={() => setSettingsOpen(false)} />}
       {paletteOpen && <Palette onClose={() => setPaletteOpen(false)} go={go} />}
       {shared && <SharedTrip trip={shared} onClose={() => setShared(null)} />}

@@ -30,4 +30,4 @@ Lucide line icons only, 24 px in tabs and 20 px inline, 2 px stroke (2.25 when a
 
 ## Open with the designer
 
-See the handoff's section 9: the badge unlock motion is provisional, the app icon is teal (ember is the alternative), map tiles need a provider, and the badge list and unlock rules are still to be defined.
+See the handoff's section 9. Decisions taken in the app (design control sits with the app now; the designer is only asked about their own materials): the badge list and unlock rules live in `src/lib/badges.ts` and use the kit's nine pieces of badge art; the unlock toast follows B12-C with a 420 ms pop and one burst of confetti; map tiles are OpenStreetMap with a sepia tint in light mode; the app icon stays teal; navigation is the kit's five tabs (Home, Trail, Places, Badges, Me) with the rest behind Me.
