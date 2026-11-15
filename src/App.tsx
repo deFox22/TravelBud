@@ -68,10 +68,15 @@ export default function App() {
   if (!ready)
     return (
       <div className="loading">
-        <div className="splash-mark">
-          <Fox mood="excited" size={64} />
+        <div className="walk">
+          <svg viewBox="0 0 260 40" aria-hidden="true">
+            <path d="M4 30 C 60 6, 110 6, 130 22" fill="none" stroke="var(--tb-primary)" strokeWidth="5" strokeLinecap="round" />
+            <path d="M130 22 C 160 40, 210 36, 256 14" fill="none" stroke="var(--tb-text-muted)" strokeWidth="4" strokeLinecap="round" strokeDasharray="2 10" />
+          </svg>
+          <Fox mood="happy" size={110} />
         </div>
-        Scout is packing your bags…
+        Packing your bag…
+        <span className="muted">Getting your trail ready</span>
       </div>
     )
 
@@ -92,13 +97,8 @@ export default function App() {
     <div className="app">
       <aside className="sidebar">
         <div className="brand">
-          <span className="brand-mark">
-            <Fox mood="happy" size={34} />
-          </span>
-          <span className="brand-text">
-            TravelBud
-            <small>all things travel</small>
-          </span>
+          <img className="brand-lockup forest" src={`${import.meta.env.BASE_URL}brand/logo/travelbud-lockup-horizontal-forest.svg`} alt="TravelBud" />
+          <img className="brand-lockup cream" src={`${import.meta.env.BASE_URL}brand/logo/travelbud-lockup-horizontal-cream.svg`} alt="" aria-hidden="true" />
         </div>
         <button type="button" className="search-trigger" onClick={() => setPaletteOpen(true)}>
           <span>

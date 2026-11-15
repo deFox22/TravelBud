@@ -1,7 +1,7 @@
 import type { Trip } from '../lib/types'
 import { useStore } from '../lib/store'
 import { Modal } from './ui'
-import { Fox } from './Fox'
+import { FoxSays } from './Fox'
 import { fmtDate, fmtRange, plural, uid, weekday } from '../lib/util'
 import { clearShareFromUrl } from '../lib/share'
 
@@ -33,9 +33,8 @@ export function SharedTrip({ trip, onClose }: { trip: Trip; onClose: () => void 
         </>
       }
     >
-      <div className="fox-says" style={{ marginBottom: 16 }}>
-        <Fox mood="excited" size={64} />
-        <div className="fox-bubble">A plan arrived! Save it and it's yours to edit. Photos and places aren't included, only the plan.</div>
+      <div style={{ marginBottom: 16 }}>
+        <FoxSays mood="excited">A plan arrived! Save it and it's yours to edit. Photos and places aren't included, only the plan.</FoxSays>
       </div>
       <h2 style={{ fontSize: 26 }}>{trip.title}</h2>
       <p className="muted">

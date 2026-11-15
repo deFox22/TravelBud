@@ -1,9 +1,9 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
 import type { Page, Place } from '../lib/types'
 import { useStore } from '../lib/store'
-import { CountUp, Flag, Ring } from '../components/ui'
+import { CountUp, Flag, Ring, StatStrip } from '../components/ui'
 import { Tracker } from '../components/Tracker'
-import { Globe, MapPin, Luggage, Camera, KeyRound, Map as MapIcon, Plane, IdCard, ChartColumn, Compass, CircleDollarSign, ListChecks, Backpack, type LucideIcon } from 'lucide-react'
+import { MapPin, Luggage, Camera, KeyRound, Map as MapIcon, Plane, IdCard, ChartColumn, Compass, CircleDollarSign, ListChecks, Backpack } from 'lucide-react'
 import { FoxSays, type FoxAction } from '../components/Fox'
 import { fetchLocalNow, weatherIcon, type LocalNow } from '../lib/util'
 import { backupPermission, getBackupFolder, requestBackupPermission } from '../lib/backup'
@@ -153,13 +153,15 @@ export function Home({ go }: { go: (p: Page, tripId?: string) => void }) {
         </div>
       )}
 
-      <div className="stat-row">
-        <Stat n={countries.size} label="Countries" icon={Globe} />
-        <Stat n={visited.length} label="Places visited" icon={MapPin} />
-        <Stat n={pastTrips.length} label="Trips taken" icon={Luggage} />
-        <Stat n={data.memories.length} label="Memories kept" icon={Camera} />
-        <Stat n={data.sitters.filter(s => s.trusted).length} label="Trusted sitters" icon={KeyRound} />
-      </div>
+      <StatStrip
+        onPress={() => go('insights')}
+        stats={[
+          { n: <CountUp n={countries.size} />, label: countries.size === 1 ? 'country' : 'countries' },
+          { n: <CountUp n={visited.length} />, label: visited.length === 1 ? 'place' : 'places' },
+          { n: <CountUp n={pastTrips.length} />, label: pastTrips.length === 1 ? 'trip' : 'trips' },
+          { n: <CountUp n={data.memories.length} />, label: data.memories.length === 1 ? 'memory' : 'memories' },
+        ]}
+      />
 
       {next && (active || daysUntil(next.startDate) <= 7) && <Tracker trip={next} go={go} />}
 
@@ -367,22 +369,6 @@ export function Home({ go }: { go: (p: Page, tripId?: string) => void }) {
           </div>
         </div>
       </div>
-    </div>
-  )
-}
-
-function Stat({ n, label, icon: Icon }: { n: number; label: string; icon?: LucideIcon }) {
-  return (
-    <div className="card stat">
-      {Icon && (
-        <span className="ico" aria-hidden="true">
-          <Icon size={22} strokeWidth={1.8} />
-        </span>
-      )}
-      <div className="num">
-        <CountUp n={n} />
-      </div>
-      <div className="lbl">{label}</div>
     </div>
   )
 }

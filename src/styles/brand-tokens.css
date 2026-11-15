@@ -1,0 +1,252 @@
+/* TravelBud design tokens · V2 Daylight Trail
+   Generated from ktokens.py, the same source as the brand book PDF. Regenerate it; don't hand-edit it.
+   Light theme on :root. Neutral dark theme applies with [data-theme="dark"] or the OS dark setting (unless [data-theme="light"]). */
+:root {
+  color-scheme: light;
+  /* brand (fixed, theme-independent) */
+  --tb-brand-forest: #1F3B2D;
+  --tb-brand-ember: #FF7A2F;
+  --tb-brand-sand: #F4EAD5;
+  --tb-brand-sage: #A9C6A0;
+  --tb-brand-teal: #14857C;
+  --tb-brand-sun: #FFC24B;
+  --tb-brand-cream: #FFF4E6;
+  --tb-brand-khaki: #C9A86A;
+  --tb-brand-fox-orange: #F26A21;
+  /* fonts */
+  --tb-font-display: 'Baloo 2', 'Nunito', system-ui, sans-serif;
+  --tb-font-body: 'Lexend', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* type scale: use as `font: var(--tb-type-title)` + `letter-spacing: var(--tb-type-title-tracking)` */
+  --tb-type-number-xl: 800 64px/64px var(--tb-font-display);
+  --tb-type-number-xl-tracking: -0.01em;
+  --tb-type-display: 800 40px/44px var(--tb-font-display);
+  --tb-type-display-tracking: 0;
+  --tb-type-title: 800 28px/32px var(--tb-font-display);
+  --tb-type-title-tracking: 0;
+  --tb-type-headline: 800 22px/26px var(--tb-font-display);
+  --tb-type-headline-tracking: 0;
+  --tb-type-number-sm: 800 22px/24px var(--tb-font-display);
+  --tb-type-number-sm-tracking: 0;
+  --tb-type-body-lg: 400 17px/24px var(--tb-font-body);
+  --tb-type-body-lg-tracking: 0;
+  --tb-type-body: 400 15px/22px var(--tb-font-body);
+  --tb-type-body-tracking: 0;
+  --tb-type-label: 600 14px/18px var(--tb-font-body);
+  --tb-type-label-tracking: 0;
+  --tb-type-caption: 500 12px/16px var(--tb-font-body);
+  --tb-type-caption-tracking: 0;
+  --tb-type-overline: 700 11px/14px var(--tb-font-body);
+  --tb-type-overline-tracking: 0.12em;
+  /* spacing (4px grid) */
+  --tb-space-0: 0px;
+  --tb-space-0_5: 2px;
+  --tb-space-1: 4px;
+  --tb-space-2: 8px;
+  --tb-space-3: 12px;
+  --tb-space-4: 16px;
+  --tb-space-5: 20px;
+  --tb-space-6: 24px;
+  --tb-space-8: 32px;
+  --tb-space-10: 40px;
+  --tb-space-12: 48px;
+  --tb-space-16: 64px;
+  /* radius */
+  --tb-radius-xs: 6px;
+  --tb-radius-sm: 10px;
+  --tb-radius-md: 14px;
+  --tb-radius-lg: 20px;
+  --tb-radius-xl: 24px;
+  --tb-radius-pill: 999px;
+  /* motion */
+  --tb-duration-fast: 120ms;
+  --tb-duration-base: 200ms;
+  --tb-duration-slow: 320ms;
+  --tb-duration-pop: 420ms;
+  --tb-duration-confetti: 900ms;
+  --tb-toast-dismiss: 4000ms;
+  --tb-ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --tb-ease-exit: cubic-bezier(0.4, 0, 1, 1);
+  --tb-ease-pop: cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* layout */
+  --tb-tap-min: 44px;
+  --tb-button-h: 48px;
+  --tb-button-h-sm: 36px;
+  --tb-input-h: 52px;
+  --tb-tabbar-h: 84px;
+  --tb-statstrip-h: 56px;
+  --tb-screen-pad: 20px;
+  /* light colours */
+  --tb-bg: #F4EAD5;
+  --tb-bg-subtle: #FBF6EC;
+  --tb-surface: #FFFFFF;
+  --tb-surface-warm: #FFFDF6;
+  --tb-fill: #EADBBE;
+  --tb-border: #E2D2B0;
+  --tb-border-strong: #C9B48A;
+  --tb-text: #1F3B2D;
+  --tb-text-muted: #5E6E62;
+  --tb-text-subtle: #6A756B;
+  --tb-text-on-primary: #1F3B2D;
+  --tb-number: #1F3B2D;
+  --tb-primary: #FF7A2F;
+  --tb-primary-pressed: #EC6A22;
+  --tb-primary-tint: #FFE4D3;
+  --tb-secondary: #EADBBE;
+  --tb-secondary-pressed: #DCC9A4;
+  --tb-on-secondary: #1F3B2D;
+  --tb-link: #0D6A63;
+  --tb-link-pressed: #0A524D;
+  --tb-accent-teal: #14857C;
+  --tb-sun: #FFC24B;
+  --tb-sage: #A9C6A0;
+  --tb-sky: #D6ECE6;
+  --tb-pink: #F7A8B8;
+  --tb-forest-2: #2C5440;
+  --tb-ink-red: #C8452E;
+  --tb-ink-blue: #2643A0;
+  --tb-danger: #C8452E;
+  --tb-focus: #14857C;
+  --tb-disabled-bg: #EFE3CB;
+  --tb-disabled-text: #B3A88F;
+  --tb-tabbar-bg: rgba(255,253,246,0.72);
+  --tb-scrim: rgba(31,59,45,0.35);
+  --tb-chip-dreaming-bg: #FDE3E9;
+  --tb-chip-dreaming-fg: #8E3A55;
+  --tb-chip-planning-bg: #FFEFC7;
+  --tb-chip-planning-fg: #6B5000;
+  --tb-map-land: #EFE4CC;
+  --tb-map-park: #D7E5C8;
+  --tb-map-water: #BFE0E0;
+  --tb-map-road: #FFFFFF;
+  --tb-chip-booked-bg: #D3ECE9;
+  --tb-chip-booked-fg: #0E655E;
+  --tb-chip-completed-bg: #DCE5DE;
+  --tb-chip-completed-fg: #1F3B2D;
+  --tb-shadow-card: 0 14px 28px -16px rgba(31,59,45,0.45);
+  --tb-shadow-raised: 0 10px 24px -8px rgba(31,59,45,0.40);
+  --tb-shadow-button: 0 6px 14px -8px rgba(31,59,45,0.35);
+  --tb-shadow-focus: 0 0 0 3px rgba(20,133,124,0.45);
+}
+[data-theme="dark"] {
+  color-scheme: dark;
+  --tb-bg: #17181A;
+  --tb-bg-subtle: #1C1D20;
+  --tb-surface: #222326;
+  --tb-surface-warm: #26272A;
+  --tb-fill: #2C2D31;
+  --tb-border: #3A3B40;
+  --tb-border-strong: #55575D;
+  --tb-text: #F2F2F0;
+  --tb-text-muted: #B4B5B0;
+  --tb-text-subtle: #909296;
+  --tb-text-on-primary: #17181A;
+  --tb-number: #F2F2F0;
+  --tb-primary: #FF8A47;
+  --tb-primary-pressed: #E46F2E;
+  --tb-primary-tint: #3A2A20;
+  --tb-secondary: #2E2F33;
+  --tb-secondary-pressed: #3A3B40;
+  --tb-on-secondary: #F2F2F0;
+  --tb-link: #4CC2B6;
+  --tb-link-pressed: #7AD6CC;
+  --tb-accent-teal: #3FB3A8;
+  --tb-sun: #FFC24B;
+  --tb-sage: #7F9C78;
+  --tb-sky: #24353A;
+  --tb-pink: #E58FA2;
+  --tb-forest-2: #2C5440;
+  --tb-ink-red: #FF7A62;
+  --tb-ink-blue: #8EA5FF;
+  --tb-danger: #FF7A62;
+  --tb-focus: #4CC2B6;
+  --tb-disabled-bg: #26272A;
+  --tb-disabled-text: #5C5E62;
+  --tb-tabbar-bg: rgba(30,31,34,0.72);
+  --tb-scrim: rgba(0,0,0,0.5);
+  --tb-chip-dreaming-bg: #3A2830;
+  --tb-chip-dreaming-fg: #F5B6C6;
+  --tb-chip-planning-bg: #3A3220;
+  --tb-chip-planning-fg: #FFD67A;
+  --tb-map-land: #1E2023;
+  --tb-map-park: #223027;
+  --tb-map-water: #1B3337;
+  --tb-map-road: #33363B;
+  --tb-chip-booked-bg: #1F3532;
+  --tb-chip-booked-fg: #7AD6CC;
+  --tb-chip-completed-bg: #283029;
+  --tb-chip-completed-fg: #C9DCCB;
+  --tb-shadow-card: 0 14px 28px -16px rgba(0,0,0,0.70);
+  --tb-shadow-raised: 0 10px 24px -8px rgba(0,0,0,0.60);
+  --tb-shadow-button: 0 6px 14px -8px rgba(0,0,0,0.60);
+  --tb-shadow-focus: 0 0 0 3px rgba(76,194,182,0.55);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --tb-bg: #17181A;
+    --tb-bg-subtle: #1C1D20;
+    --tb-surface: #222326;
+    --tb-surface-warm: #26272A;
+    --tb-fill: #2C2D31;
+    --tb-border: #3A3B40;
+    --tb-border-strong: #55575D;
+    --tb-text: #F2F2F0;
+    --tb-text-muted: #B4B5B0;
+    --tb-text-subtle: #909296;
+    --tb-text-on-primary: #17181A;
+    --tb-number: #F2F2F0;
+    --tb-primary: #FF8A47;
+    --tb-primary-pressed: #E46F2E;
+    --tb-primary-tint: #3A2A20;
+    --tb-secondary: #2E2F33;
+    --tb-secondary-pressed: #3A3B40;
+    --tb-on-secondary: #F2F2F0;
+    --tb-link: #4CC2B6;
+    --tb-link-pressed: #7AD6CC;
+    --tb-accent-teal: #3FB3A8;
+    --tb-sun: #FFC24B;
+    --tb-sage: #7F9C78;
+    --tb-sky: #24353A;
+    --tb-pink: #E58FA2;
+    --tb-forest-2: #2C5440;
+    --tb-ink-red: #FF7A62;
+    --tb-ink-blue: #8EA5FF;
+    --tb-danger: #FF7A62;
+    --tb-focus: #4CC2B6;
+    --tb-disabled-bg: #26272A;
+    --tb-disabled-text: #5C5E62;
+    --tb-tabbar-bg: rgba(30,31,34,0.72);
+    --tb-scrim: rgba(0,0,0,0.5);
+    --tb-chip-dreaming-bg: #3A2830;
+    --tb-chip-dreaming-fg: #F5B6C6;
+    --tb-chip-planning-bg: #3A3220;
+    --tb-chip-planning-fg: #FFD67A;
+    --tb-map-land: #1E2023;
+    --tb-map-park: #223027;
+    --tb-map-water: #1B3337;
+    --tb-map-road: #33363B;
+    --tb-chip-booked-bg: #1F3532;
+    --tb-chip-booked-fg: #7AD6CC;
+    --tb-chip-completed-bg: #283029;
+    --tb-chip-completed-fg: #C9DCCB;
+    --tb-shadow-card: 0 14px 28px -16px rgba(0,0,0,0.70);
+    --tb-shadow-raised: 0 10px 24px -8px rgba(0,0,0,0.60);
+    --tb-shadow-button: 0 6px 14px -8px rgba(0,0,0,0.60);
+    --tb-shadow-focus: 0 0 0 3px rgba(76,194,182,0.55);
+  }
+}
+
+/* ---------- base ---------- */
+html { background: var(--tb-bg); color: var(--tb-text); font-family: var(--tb-font-body); -webkit-font-smoothing: antialiased; }
+:focus-visible { outline: none; box-shadow: var(--tb-shadow-focus); }
+
+/* ---------- motion keyframes ---------- */
+/* Badge unlock pop: PROVISIONAL (B13 was skipped). A short bouncy scale-in. Swap it once the unlock motion is chosen. */
+@keyframes tb-pop { 0% { transform: scale(.6); opacity: 0; } 60% { transform: scale(1.08); opacity: 1; } 100% { transform: scale(1); } }
+@keyframes tb-toast-in { from { transform: translateY(-16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes tb-confetti { 0% { transform: translate(0,0) rotate(0); opacity: 1; } 100% { transform: translate(var(--dx,0), var(--dy,80px)) rotate(var(--rot,180deg)); opacity: 0; } }
+@keyframes tb-walk { 0%,100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-4px) rotate(2deg); } }
+@keyframes tb-stamp { 0% { transform: scale(1.4) rotate(-14deg); opacity: 0; } 70% { transform: scale(.96) rotate(-7deg); opacity: 1; } 100% { transform: scale(1) rotate(-8deg); } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 1ms !important; }
+}

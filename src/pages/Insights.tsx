@@ -1,6 +1,6 @@
 import { lazy, Suspense, useMemo, useState } from 'react'
 import { useStore } from '../lib/store'
-import { CountUp, Empty, Flag, PageHeader, Stars } from '../components/ui'
+import { CountUp, Empty, Flag, PageHeader, Stars, StatStrip } from '../components/ui'
 import { YearStory } from './Story'
 import { Play } from 'lucide-react'
 
@@ -101,14 +101,14 @@ export function Insights() {
         <Empty icon="📊" title="Nothing to add up yet" body="Pin places, log trips, and keep memories. This page fills in as you go." />
       ) : (
         <>
-          <div className="stat-row">
-            <Tile n={s.countries.length} label="Countries" />
-            <Tile n={s.visited.length} label="Places visited" />
-            <Tile n={s.past.length} label="Trips taken" />
-            <Tile n={s.totalNights} label="Nights away" />
-            <Tile n={data.memories.length} label="Memories" />
-            <Tile n={s.wishlist} label="On the wishlist" />
-          </div>
+          <StatStrip
+            stats={[
+              { n: <CountUp n={s.countries.length} />, label: 'countries' },
+              { n: <CountUp n={s.past.length} />, label: 'trips' },
+              { n: <CountUp n={s.totalNights} />, label: 'nights away' },
+              { n: <CountUp n={data.memories.length} />, label: 'memories' },
+            ]}
+          />
 
           <div className="two-col">
             <div className="page" style={{ gap: 16 }}>
@@ -255,17 +255,6 @@ export function Insights() {
           </div>
         </>
       )}
-    </div>
-  )
-}
-
-function Tile({ n, label }: { n: number; label: string }) {
-  return (
-    <div className="card stat">
-      <div className="num">
-        <CountUp n={n} />
-      </div>
-      <div className="lbl">{label}</div>
     </div>
   )
 }

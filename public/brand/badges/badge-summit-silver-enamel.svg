@@ -1,0 +1,46 @@
+<svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <linearGradient id="linearGradient1" x1="0" y1="0" x2="1" y2="1" gradientUnits="userSpaceOnUse" gradientTransform="matrix(184 0 0 183.99998 7.95 8)">
+            <stop offset="0" stop-color="#ffffff"/>
+            <stop offset="0.35" stop-color="#b9c0c8"/>
+            <stop offset="0.6" stop-color="#6e7680"/>
+            <stop offset="0.8" stop-color="#b9c0c8"/>
+            <stop offset="1" stop-color="#ffffff"/>
+        </linearGradient>
+        <linearGradient id="mg2" x1="0" y1="0" x2="1" y2="1" gradientUnits="userSpaceOnUse" gradientTransform="matrix(184 0 0 183.99998 7.95 8)">
+            <stop offset="0" stop-color="#ffffff"/>
+            <stop offset="0.35" stop-color="#b9c0c8"/>
+            <stop offset="0.6" stop-color="#6e7680"/>
+            <stop offset="0.8" stop-color="#b9c0c8"/>
+            <stop offset="1" stop-color="#ffffff"/>
+        </linearGradient>
+        <clipPath id="cp2">
+            <path fill="#000000" stroke="none" d="M 100 8 C 150.80043 8.027609 191.9638 49.224556 191.94998 100.02499 C 191.93619 150.82542 150.75043 191.99998 99.95 191.99998 C 49.149567 191.99998 7.963808 150.82542 7.9500036 100.02499 C 7.936198 49.224556 49.099575 8.027609 99.90001 8 Z"/>
+        </clipPath>
+    </defs>
+    <g transform="matrix(1.1428572 0 0 1.1428572 13.714288 13.714288)">
+        <path fill="url(#linearGradient1)" stroke="none" d="M 100 8 C 150.80043 8.027609 191.9638 49.224556 191.94998 100.02499 C 191.93619 150.82542 150.75043 191.99998 99.95 191.99998 C 49.149567 191.99998 7.963808 150.82542 7.9500036 100.02499 C 7.936198 49.224556 49.099575 8.027609 99.90001 8 Z"/>
+        <g clip-path="url(#cp2)">
+            <path fill="#ffffff" stroke="none" d="M 100 8 C 150.80043 8.027609 191.9638 49.224556 191.94998 100.02499 C 191.93619 150.82542 150.75043 191.99998 99.95 191.99998 C 49.149567 191.99998 7.963808 150.82542 7.9500036 100.02499 C 7.936198 49.224556 49.099575 8.027609 99.90001 8 Z"/>
+            <path fill="#9fd6e6" stroke="none" d="M 0 0 L 200 0 L 200 200 L 0 200 Z"/>
+            <path fill="#ffc24b" stroke="none" d="M 72 60 C 72 68.836555 64.836555 76 56 76 C 47.163445 76 40 68.836555 40 60 C 40 51.163445 47.163445 44 56 44 C 64.836555 44 72 51.163445 72 60 Z"/>
+            <path fill="#1f3b2d" stroke="#b9c0c8" stroke-width="5" stroke-linejoin="round" d="M 10 172 L 80 70 L 104 100 L 130 60 L 196 172 Z"/>
+            <path fill="#fff4e6" stroke="none" d="M 80 70 L 66 90 L 80 86 L 90 96 Z M 130 60 L 116 80 L 130 76 L 142 86 Z"/>
+            <path fill="#000000" stroke="#b9c0c8" stroke-width="5" d="M 130 60 L 130 28"/>
+            <path fill="#ff7a2f" stroke="#b9c0c8" stroke-width="3" d="M 132 28 L 156 36 L 132 44 Z"/>
+            <g opacity="0.22">
+                <path fill="#ffffff" stroke="none" d="M -40 70 L 70 -40 L 105 -40 L -40 105 Z"/>
+            </g>
+            <g opacity="0.14">
+                <path fill="#ffffff" stroke="none" d="M -40 128 L 128 -40 L 140 -40 L -40 140 Z"/>
+            </g>
+        </g>
+        <path fill="none" stroke="url(#mg2)" stroke-width="10" stroke-linejoin="round" d="M 100 8 C 150.80043 8.027609 191.9638 49.224556 191.94998 100.02499 C 191.93619 150.82542 150.75043 191.99998 99.95 191.99998 C 49.149567 191.99998 7.963808 150.82542 7.9500036 100.02499 C 7.936198 49.224556 49.099575 8.027609 99.90001 8 Z"/>
+        <g opacity="0.9">
+            <path fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linejoin="round" d="M 100 8 C 150.80043 8.027609 191.9638 49.224556 191.94998 100.02499 C 191.93619 150.82542 150.75043 191.99998 99.95 191.99998 C 49.149567 191.99998 7.963808 150.82542 7.9500036 100.02499 C 7.936198 49.224556 49.099575 8.027609 99.90001 8 Z"/>
+        </g>
+        <g opacity="0.7" transform="matrix(0.81915206 -0.57357645 0.57357645 0.81915206 -11.730484 42.79566)">
+            <path fill="#ffffff" stroke="none" d="M 72 40 C 72 42.20914 67.52285 44 62 44 C 56.477154 44 52 42.20914 52 40 C 52 37.79086 56.477154 36 62 36 C 67.52285 36 72 37.79086 72 40 Z"/>
+        </g>
+    </g>
+</svg>

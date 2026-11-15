@@ -1,47 +1,33 @@
-# TravelBud brand guide
+# TravelBud brand · V2 Daylight Trail
 
-TravelBud is a warm, personal travel companion. It should feel like a well-loved notebook with a very organized fox inside, not like a booking site.
+The brand is defined by the design kit, not by this file. This file says where things live and how the app uses them.
+
+- **Guidelines:** `docs/TravelBud-brand-guidelines.pdf` (23 pages). The developer handoff is `docs/brand-handoff.md`.
+- **Tokens:** `src/styles/brand-tokens.css` is generated from the kit (`tokens.json`). Do not hand-edit it; regenerate from the kit. `src/styles/tokens.css` maps the app's own variable names onto it, and `src/styles/brand.css` holds the component rules from the kit.
+- **Artwork:** `public/brand/` holds Scout (five moods, head, ranger), the logo lockups and wordmark, badges, stamps, map pins, favicon and app icons. All SVGs have outlined text, so no font is needed to render them.
 
 ## Scout
 
-Scout is the mascot and logo: a round-faced fox with a teal scarf. Scout lives in `src/components/Fox.tsx` as inline SVG and in `public/` as PNG app icons.
+Scout is the logo and the mascot: a fox with a ranger hat and a teal scarf. Use the kit's artwork as-is. Never redraw, recolour, rotate, stretch, outline, or crop Scout's hat or ears. One Scout per screen. Scout sits on sand, cream, sage or sky, never on a photo.
 
-- Moods: **happy** (default), **wave** (greeting), **excited** (celebrations, the year story), **think** (nudges and alerts), **sleepy** (empty states).
-- Scout speaks in the first person, short and friendly, never corporate. One sentence of fact, one of encouragement.
-- Scout is never used for warnings about data loss or deletions. Those are plain text.
-- Minimum size 24 px. Keep the scarf; it is the brand color anchor.
+Moods and where the app uses them: **happy** (default, the Trail, headers), **wave** (greeting, postcard notes), **excited** (celebrations, packed, the year story cover), **think** (nudges, choices, errors), **sleepy** (empty states). Minimum size: 40 px head, 64 px full body.
 
-## Color
+## Colour
 
-| Token | Light | Dark | Use |
-| --- | --- | --- | --- |
-| Deep teal `--primary` | `#15605d` | `#5cbdb6` | Actions, links, visited, the scarf |
-| Terracotta `--accent` | `#d9734a` | `#e68a62` | Wishlist, highlights, the trail, Scout's fur |
-| Gold `--gold` | `#d9a441` | `#e2b65a` | Ratings, heads-up alerts, the sun |
-| Sand `--bg` | `#f4efe6` | `#111b1a` | Page background with a faint topographic pattern |
-| Cream `--surface` | `#fffcf7` | `#1a2725` | Cards and panels |
-| Ink `--ink` | `#1e2a2f` | `#ece6da` | Text |
-
-Teal does the work, terracotta points at things, gold celebrates. Never use red except for destructive actions.
+Forest `#1F3B2D` is the ink. Ember `#FF7A2F` is the one hero colour: primary buttons (with a forest label, never white), the active tab, the completed trail, visited pins, progress. Sand `#F4EAD5` is the page. Teal `#14857C` is for icons, rings and small accents; links use the darker `#0D6A63`. Sun `#FFC24B` is ratings, tape and the sun. Dark mode is neutral charcoal, not forest. Use the semantic tokens (`--tb-primary`, `--tb-text`…), never raw hex.
 
 ## Type
 
-- **Display:** Fraunces (serif, optical sizing). Headlines, numbers, Scout's big moments. Italic for names and years.
-- **Body:** DM Sans. Everything else. Labels are small, bold, uppercase, letter-spaced.
-- Numbers that matter are large and count up.
+Baloo 2 at 800 for titles, big numbers and badges, never for paragraphs. Lexend for everything else. Both ship with the app via `@fontsource-variable`. Big numbers are forest, tabular, and count up the first time they show.
 
-## Icons
+## Components, in one line each
 
-Lucide icons at 1.8 to 2.2 stroke for navigation and actions. Emoji are reserved for content that is itself illustrative: weather, flags, booking types, and the little badges on empty states.
+Buttons: rounded square, radius 14, 48 high, ember with forest text; secondary is sand. Cards: white, radius 20, soft forest shadow, no border. Inputs: filled sand, radius 14, 52 high, no border; focus turns white with a teal ring. Stats: one slim strip, never tiles. Scout speaks through a tilted postcard with a postage stamp. Trip status is a soft chip with a Lucide icon. Memories are Polaroids with sun-yellow tape. Packing items get an ink PACKED stamp, not a strikethrough. The trail is a forest dashed route with the completed part in ember, mini stamps for days, Scout at today, and a locked badge at the summit. Map pins: ember dot visited, white dot with a teal ring wishlist, ember teardrop with Scout when selected. Empty states show Scout asleep under the stars. Loading shows Scout walking a dashed trail.
 
-## Motion
+## Icons and motion
 
-Soft and brief: 150 to 350 ms, ease-out, lift on hover, fade-up on entry. Celebrations (confetti, the slideshow, the year story) are the only places motion gets loud. Everything respects the system "reduce motion" setting.
+Lucide line icons only, 24 px in tabs and 20 px inline, 2 px stroke (2.25 when active). Emoji stay only where they are content: weather and the little badges inside popups. Motion is quick and a little bouncy: 120 ms press, 320 ms sheets and stamps, 420 ms badge pop, 900 ms confetti and count-ups. Everything respects reduced motion.
 
-## Voice
+## Open with the designer
 
-Second person, plain words, no exclamation marks except from Scout. "Heads up" rather than "Warning". "Take me back" rather than "Memory of the day".
-
-## Logo lockup
-
-Scout in a rounded teal tile at the left, the wordmark "TravelBud" in Fraunces bold teal, and the tagline "ALL THINGS TRAVEL" in small-caps DM Sans beneath. The favicon is Scout alone on teal.
+See the handoff's section 9: the badge unlock motion is provisional, the app icon is teal (ember is the alternative), map tiles need a provider, and the badge list and unlock rules are still to be defined.

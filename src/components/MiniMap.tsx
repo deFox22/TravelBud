@@ -8,7 +8,7 @@ export interface MapPoint {
   label: string
 }
 
-const dot = L.divIcon({ className: 'pin-wrap', html: '<div class="pin visited mini"></div>', iconSize: [20, 20], iconAnchor: [10, 20] })
+const dot = L.divIcon({ className: 'tb-pin', html: '<span class="tb-dot visited" style="width:20px;height:20px;margin:0;border-width:3px"></span>', iconSize: [20, 20], iconAnchor: [10, 10] })
 
 function Fit({ points }: { points: MapPoint[] }) {
   const map = useMap()
@@ -30,10 +30,10 @@ export function MiniMap({ points, route, height = 220 }: { points: MapPoint[]; r
       <MapContainer center={[20, 0]} zoom={2} zoomControl={false} scrollWheelZoom={false} dragging={false} doubleClickZoom={false} attributionControl={false} style={{ height: '100%' }}>
         <TileLayer url="https://tile.openstreetmap.org/{z}/{x}/{y}.png" maxZoom={19} crossOrigin="anonymous" />
         <Fit points={points} />
-        {route && points.length > 1 && <Polyline positions={points.map(p => [p.lat, p.lng] as [number, number])} pathOptions={{ color: '#15605d', weight: 3, dashArray: '6 8', opacity: 0.85 }} />}
+        {route && points.length > 1 && <Polyline positions={points.map(p => [p.lat, p.lng] as [number, number])} pathOptions={{ color: '#FF7A2F', weight: 4, dashArray: '10 6', opacity: 0.9, lineCap: 'round' }} />}
         {points.map((p, i) => (
           <Marker key={i} position={[p.lat, p.lng]} icon={dot} interactive={false}>
-            <Tooltip permanent direction="top" offset={[0, -18]} className="minimap-tip">
+            <Tooltip permanent direction="top" offset={[0, -12]} className="minimap-tip">
               {p.label}
             </Tooltip>
           </Marker>

@@ -13,7 +13,7 @@ import { Plus, Share2, Printer, Play, ArrowLeft, Pencil, Trash2, Compass, Extern
 const party = () =>
   confetti({ particleCount: 160, spread: 75, startVelocity: 38, origin: { y: 0.65 }, colors: ['#15605d', '#2b8f85', '#d9734a', '#d9a441', '#fffcf7'] })
 import { useStore } from '../lib/store'
-import { Empty, Field, Modal, PageHeader, Pill, Progress } from '../components/ui'
+import { Empty, Field, Modal, PageHeader, Pill, Progress, StatusChip } from '../components/ui'
 import { addDays, daysBetween, daysUntil, fetchForecast, fmtDate, fmtMoney, fmtRange, hostOf, makePhoto, mapsUrl, plural, resizeImage, siteLabel, thumbOf, todayISO, uid, usesFahrenheit, weatherIcon, weekday, type ForecastDay } from '../lib/util'
 import { Flag as FlagIcon } from '../components/ui'
 
@@ -330,7 +330,7 @@ function TripDetail({ trip, onBack, go }: { trip: Trip; onBack: () => void; go: 
         <div style={{ flex: 1, minWidth: 200 }}>
           <div className="pills" style={{ gap: 10 }}>
             <h1>{trip.title}</h1>
-            <Pill tone={STATUS[trip.status].tone}>{isPast && trip.status !== 'completed' ? 'Past' : STATUS[trip.status].label}</Pill>
+            <StatusChip status={isPast && trip.status !== 'completed' ? 'past' : trip.status} />
           </div>
           <p className="subtitle">
             {trip.destination || 'Destination TBD'} · {fmtRange(trip.startDate, trip.endDate)}
@@ -681,7 +681,7 @@ function Packing({ trip, patch }: SectionProps) {
 
   return (
     <div className="two-col">
-      <div className="card pad">
+      <div className="card pad packing">
         <div className="card-head">
           <h3>
             Packing list{' '}

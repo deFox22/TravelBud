@@ -1,5 +1,41 @@
 import { useEffect, useState, type ReactNode, type KeyboardEvent } from 'react'
+import { CalendarClock, CircleCheckBig, Sparkles, Ticket, History, type LucideIcon } from 'lucide-react'
 import { Fox } from './Fox'
+
+/** B18-A trip status chip: soft tint + Lucide icon + label. */
+const CHIP: Record<'dreaming' | 'planning' | 'booked' | 'completed' | 'past', { label: string; Icon: LucideIcon }> = {
+  dreaming: { label: 'Dreaming', Icon: Sparkles },
+  planning: { label: 'Planning', Icon: CalendarClock },
+  booked: { label: 'Booked', Icon: Ticket },
+  completed: { label: 'Completed', Icon: CircleCheckBig },
+  past: { label: 'Past', Icon: History },
+}
+export function StatusChip({ status, className = '' }: { status: keyof typeof CHIP; className?: string }) {
+  const { label, Icon } = CHIP[status]
+  return (
+    <span className={`chip-status ${status} ${className}`}>
+      <Icon size={16} strokeWidth={2.25} aria-hidden />
+      {label}
+    </span>
+  )
+}
+
+/** B4 stat strip: one slim row of numbers with hairline dividers. Never tiles. */
+export function StatStrip({ stats, onPress, className = '' }: { stats: { n: ReactNode; label: string }[]; onPress?: () => void; className?: string }) {
+  const inner = stats.map(s => (
+    <div key={s.label}>
+      <span className="n">{s.n}</span>
+      <span className="l">{s.label}</span>
+    </div>
+  ))
+  return onPress ? (
+    <button type="button" className={`card stat-strip ${className}`} onClick={onPress} style={{ font: 'inherit', color: 'inherit', textAlign: 'left', cursor: 'pointer', border: 0, width: '100%' }}>
+      {inner}
+    </button>
+  ) : (
+    <div className={`card stat-strip ${className}`}>{inner}</div>
+  )
+}
 
 /** Number that counts up from zero when it mounts or changes. */
 export function CountUp({ n, duration = 900 }: { n: number; duration?: number }) {
@@ -146,14 +182,16 @@ export function Stars({ value, onChange, small }: { value: number; onChange?: (n
 
 export function Empty({ icon, title, body, action }: { icon: string; title: string; body?: string; action?: ReactNode }) {
   return (
-    <div className="empty">
-      <div className="empty-icon fox-empty">
-        <Fox mood="sleepy" size={72} />
-        <span className="empty-badge">{icon}</span>
+    <div className="empty" data-icon={icon}>
+      <div className="empty-night">
+        <span className="hill" />
+        <Fox mood="sleepy" size={150} />
       </div>
-      <h3>{title}</h3>
-      {body && <p>{body}</p>}
-      {action}
+      <div className="empty-body">
+        <h3>{title}</h3>
+        {body && <p>{body}</p>}
+        {action}
+      </div>
     </div>
   )
 }

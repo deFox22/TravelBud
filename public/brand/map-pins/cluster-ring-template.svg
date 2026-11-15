@@ -1,0 +1,10 @@
+<svg width="72" height="72" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg">
+    <g transform="matrix(1 0 0 1 4 4)">
+        <path fill="none" stroke="#14857c" stroke-width="8" d="M 58 32 C 58 46.3594 46.3594 58 32 58 C 17.640596 58 6 46.3594 6 32 C 6 17.640596 17.640596 6 32 6 C 46.3594 6 58 17.640596 58 32 Z"/>
+        <g transform="matrix(0 -1 1 0 0 64)">
+            <path fill="none" stroke="#ff7a2f" stroke-width="8" stroke-dasharray="114.4 163.4" d="M 58 32 C 58 46.3594 46.3594 58 32 58 C 17.640596 58 6 46.3594 6 32 C 6 17.640596 17.640596 6 32 6 C 46.3594 6 58 17.640596 58 32 Z"/>
+        </g>
+        <path fill="#ffffff" stroke="none" d="M 53 32 C 53 43.597984 43.597984 53 32 53 C 20.40202 53 11 43.597984 11 32 C 11 20.40202 20.40202 11 32 11 C 43.597984 11 53 20.40202 53 32 Z"/>
+        <g opacity="0"/>
+    </g>
+</svg>

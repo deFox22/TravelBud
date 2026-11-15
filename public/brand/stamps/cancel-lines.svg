@@ -1,0 +1,21 @@
+<svg width="200" height="123" viewBox="0 0 200 123" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <filter id="ik8" x="-30.000002" y="28.15" width="260" height="63.699997" filterUnits="userSpaceOnUse">
+            <feTurbulence color-interpolation-filters="linearRGB" result="w" baseFrequency="0.045 0.045" numOctaves="2" seed="8" stitchTiles="noStitch" type="fractalNoise"/>
+            <feDisplacementMap color-interpolation-filters="linearRGB" in="SourceGraphic" in2="w" result="d" scale="3.5" xChannelSelector="R" yChannelSelector="G"/>
+            <feTurbulence color-interpolation-filters="linearRGB" result="n" baseFrequency="0.85 0.85" numOctaves="2" seed="15" stitchTiles="noStitch" type="fractalNoise"/>
+            <feColorMatrix color-interpolation-filters="linearRGB" in="n" result="a" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 3.3 0 0 0 -0.75"/>
+            <feTurbulence color-interpolation-filters="linearRGB" result="big" baseFrequency="0.012 0.012" numOctaves="1" seed="11" stitchTiles="noStitch" type="fractalNoise"/>
+            <feColorMatrix color-interpolation-filters="linearRGB" in="big" result="b" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.4 0 0 0 0.25"/>
+            <feComposite color-interpolation-filters="linearRGB" in="a" in2="b" operator="arithmetic" k1="1" k2="0" k3="0" k4="0" result="ab"/>
+            <feComposite color-interpolation-filters="linearRGB" in="d" in2="ab" operator="in" result="result8"/>
+        </filter>
+    </defs>
+    <g transform="matrix(0.9609375 0 0 0.9609375 3.90625 3.84375)">
+        <g filter="url(#ik8)">
+            <path fill="none" stroke="#c8452e" stroke-width="5" d="M 0 40 Q 12 31 25 40 Q 38 49 50 40 Q 62 31 75 40 Q 88 49 100 40 Q 112 31 125 40 Q 138 49 150 40 Q 162 31 175 40 Q 188 49 200 40"/>
+            <path fill="none" stroke="#c8452e" stroke-width="5" d="M 0 60 Q 12 51 25 60 Q 38 69 50 60 Q 62 51 75 60 Q 88 69 100 60 Q 112 51 125 60 Q 138 69 150 60 Q 162 51 175 60 Q 188 69 200 60"/>
+            <path fill="none" stroke="#c8452e" stroke-width="5" d="M 0 80 Q 12 71 25 80 Q 38 89 50 80 Q 62 71 75 80 Q 88 89 100 80 Q 112 71 125 80 Q 138 89 150 80 Q 162 71 175 80 Q 188 89 200 80"/>
+        </g>
+    </g>
+</svg>

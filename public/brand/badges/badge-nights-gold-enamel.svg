@@ -1,0 +1,60 @@
+<svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <linearGradient id="linearGradient1" x1="0" y1="0" x2="1" y2="1" gradientUnits="userSpaceOnUse" gradientTransform="matrix(160 0 0 186 20 8)">
+            <stop offset="0" stop-color="#fff0b8"/>
+            <stop offset="0.35" stop-color="#e9c15a"/>
+            <stop offset="0.6" stop-color="#9c6e1c"/>
+            <stop offset="0.8" stop-color="#e9c15a"/>
+            <stop offset="1" stop-color="#fff0b8"/>
+        </linearGradient>
+        <linearGradient id="mg1" x1="0" y1="0" x2="1" y2="1" gradientUnits="userSpaceOnUse" gradientTransform="matrix(160 0 0 186 20 8)">
+            <stop offset="0" stop-color="#fff0b8"/>
+            <stop offset="0.35" stop-color="#e9c15a"/>
+            <stop offset="0.6" stop-color="#9c6e1c"/>
+            <stop offset="0.8" stop-color="#e9c15a"/>
+            <stop offset="1" stop-color="#fff0b8"/>
+        </linearGradient>
+        <clipPath id="cp1">
+            <path fill="#000000" stroke="none" d="M 100 8 L 180 36 L 180 104 C 180 150 146 180 100 194 C 54 180 20 150 20 104 L 20 36 Z"/>
+        </clipPath>
+    </defs>
+    <g transform="matrix(1.1428572 0 0 1.1428572 13.714288 13.714288)">
+        <path fill="url(#linearGradient1)" stroke="none" d="M 100 8 L 180 36 L 180 104 C 180 150 146 180 100 194 C 54 180 20 150 20 104 L 20 36 Z"/>
+        <g clip-path="url(#cp1)">
+            <path fill="#ffffff" stroke="none" d="M 100 8 L 180 36 L 180 104 C 180 150 146 180 100 194 C 54 180 20 150 20 104 L 20 36 Z"/>
+            <path fill="#2c5440" stroke="none" d="M 0 0 L 200 0 L 200 200 L 0 200 Z"/>
+            <g transform="matrix(1 0 0 1 60 54)">
+                <path fill="#ffc24b" stroke="none" d="M 0 -10 L 3 -3 L 10 0 L 3 3 L 0 10 L -3 3 L -10 0 L -3 -3 Z"/>
+            </g>
+            <g transform="matrix(1.2 0 0 1.2 140 48)">
+                <path fill="#ffc24b" stroke="none" d="M 0 -10 L 3 -3 L 10 0 L 3 3 L 0 10 L -3 3 L -10 0 L -3 -3 Z"/>
+            </g>
+            <g transform="matrix(0.8 0 0 0.8 160 86)">
+                <path fill="#ffc24b" stroke="none" d="M 0 -10 L 3 -3 L 10 0 L 3 3 L 0 10 L -3 3 L -10 0 L -3 -3 Z"/>
+            </g>
+            <g transform="matrix(0.7 0 0 0.7 44 92)">
+                <path fill="#ffc24b" stroke="none" d="M 0 -10 L 3 -3 L 10 0 L 3 3 L 0 10 L -3 3 L -10 0 L -3 -3 Z"/>
+            </g>
+            <path fill="#ff7a2f" stroke="#e9c15a" stroke-width="5" stroke-linejoin="round" d="M 40 150 L 100 62 L 160 150 Z"/>
+            <path fill="#1f3b2d" stroke="#e9c15a" stroke-width="4" d="M 100 62 L 122 150 L 78 150 Z"/>
+            <path fill="#6e9a6a" stroke="#e9c15a" stroke-width="4" d="M 20 150 L 180 150 L 180 200 L 20 200 Z"/>
+            <path fill="#ffc24b" stroke="#e9c15a" stroke-width="3" d="M 115 172 C 115 180.28427 108.28427 187 100 187 C 91.71573 187 85 180.28427 85 172 C 85 163.71573 91.71573 157 100 157 C 108.28427 157 115 163.71573 115 172 Z"/>
+            <g>
+                <path fill="#1f3b2d" stroke="none" d="M 99.769005 180.154 Q 97.921005 180.154 96.425 179.45 Q 94.929 178.746 93.917 177.426 L 96.24899 174.874 Q 97.085 175.798 97.855 176.15 Q 98.625 176.502 99.57099 176.502 Q 100.209 176.502 100.68199 176.249 Q 101.155 175.996 101.41901 175.556 Q 101.683 175.116 101.683 174.58801 Q 101.683 174.016 101.408 173.576 Q 101.133 173.136 100.649 172.872 Q 100.165 172.608 99.527 172.608 Q 98.977005 172.608 98.526 172.718 Q 98.075005 172.828 97.590996 173.03699 Q 97.107 173.24599 96.513 173.642 L 94.753006 171.332 L 95.743004 164.424 L 104.829 164.424 L 104.829 167.988 L 97.635 167.988 L 98.823006 166.382 L 98.097 171.266 L 96.44701 170.892 Q 96.953 170.474 97.602005 170.155 Q 98.251 169.836 98.966 169.638 Q 99.681 169.44 100.42901 169.44 Q 101.92501 169.44 103.102005 170.111 Q 104.279 170.782 104.961006 171.992 Q 105.643005 173.202 105.643005 174.764 Q 105.643005 176.28198 104.862 177.503 Q 104.081 178.724 102.761 179.439 Q 101.441 180.154 99.769005 180.154 Z"/>
+            </g>
+            <g opacity="0.22">
+                <path fill="#ffffff" stroke="none" d="M -40 70 L 70 -40 L 105 -40 L -40 105 Z"/>
+            </g>
+            <g opacity="0.14">
+                <path fill="#ffffff" stroke="none" d="M -40 128 L 128 -40 L 140 -40 L -40 140 Z"/>
+            </g>
+        </g>
+        <path fill="none" stroke="url(#mg1)" stroke-width="10" stroke-linejoin="round" d="M 100 8 L 180 36 L 180 104 C 180 150 146 180 100 194 C 54 180 20 150 20 104 L 20 36 Z"/>
+        <g opacity="0.9">
+            <path fill="none" stroke="#fff0b8" stroke-width="1.6" stroke-linejoin="round" d="M 100 8 L 180 36 L 180 104 C 180 150 146 180 100 194 C 54 180 20 150 20 104 L 20 36 Z"/>
+        </g>
+        <g opacity="0.7" transform="matrix(0.81915206 -0.57357645 0.57357645 0.81915206 -11.730484 42.79566)">
+            <path fill="#ffffff" stroke="none" d="M 72 40 C 72 42.20914 67.52285 44 62 44 C 56.477154 44 52 42.20914 52 40 C 52 37.79086 56.477154 36 62 36 C 67.52285 36 72 37.79086 72 40 Z"/>
+        </g>
+    </g>
+</svg>

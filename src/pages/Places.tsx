@@ -7,10 +7,13 @@ import { Empty, Field, Flag, Modal, PageHeader, Pill, Stars } from '../component
 import { fmtDate, geocode, plural, reverseGeocode, thumbOf, todayISO, uid, type GeoResult } from '../lib/util'
 import { Plus } from 'lucide-react'
 
-const icons: Record<PlaceStatus | 'selected', L.DivIcon> = {
-  visited: L.divIcon({ className: 'pin-wrap', html: '<div class="pin visited"></div>', iconSize: [28, 28], iconAnchor: [14, 28], popupAnchor: [0, -26] }),
-  wishlist: L.divIcon({ className: 'pin-wrap', html: '<div class="pin wishlist"></div>', iconSize: [28, 28], iconAnchor: [14, 28], popupAnchor: [0, -26] }),
-  selected: L.divIcon({ className: 'pin-wrap', html: '<div class="pin selected"></div>', iconSize: [28, 28], iconAnchor: [14, 28], popupAnchor: [0, -26] }),
+const BASE = import.meta.env.BASE_URL
+/** B16-D: visited = ember dot, wishlist = white dot with a teal ring, selected = ember teardrop with Scout. 44 px hit areas. */
+const dot = (kind: PlaceStatus) => L.divIcon({ className: 'tb-pin', html: `<span class="tb-dot ${kind}"></span>`, iconSize: [44, 44], iconAnchor: [22, 22], popupAnchor: [0, -18] })
+const icons: Record<PlaceStatus | 'selected', L.DivIcon | L.Icon> = {
+  visited: dot('visited'),
+  wishlist: dot('wishlist'),
+  selected: L.icon({ iconUrl: `${BASE}brand/map-pins/pin-selected-teardrop.svg`, iconSize: [48, 64], iconAnchor: [24, 62], popupAnchor: [0, -58], className: 'tb-pin-selected' }),
 }
 
 const photoIcon = (m: Memory) =>
@@ -150,7 +153,7 @@ export function Places({ focusId, clearFocus, go }: { focusId: string | null; cl
                 <Polyline
                   key={t.id}
                   positions={pts.map(p => [p.lat, p.lng] as [number, number])}
-                  pathOptions={{ color: t.status === 'completed' ? '#15605d' : '#d9734a', weight: 2.5, dashArray: t.status === 'completed' ? undefined : '6 8', opacity: 0.75 }}
+                  pathOptions={{ color: t.status === 'completed' ? '#FF7A2F' : '#1F3B2D', weight: t.status === 'completed' ? 4 : 3, dashArray: t.status === 'completed' ? '10 6' : '8 8', opacity: t.status === 'completed' ? 0.9 : 0.6, lineCap: 'round' }}
                 >
                   <Popup>
                     <b>✈️ {t.title}</b>

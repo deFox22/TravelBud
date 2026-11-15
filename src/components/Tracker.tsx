@@ -3,8 +3,9 @@ import { Camera, CircleDollarSign, ListChecks, Pencil, Plus, StickyNote, Externa
 import { saveMapOffline, supportsOffline } from '../lib/offline'
 import type { Page, Photo, Trip } from '../lib/types'
 import { useStore } from '../lib/store'
-import { Fox } from './Fox'
 import { Progress, Ring } from './ui'
+
+const BASE = import.meta.env.BASE_URL
 import { EXPENSE_CATS } from '../lib/templates'
 import { addDays, daysBetween, daysUntil, fetchForecast, fmtDate, fmtMoney, makePhoto, mapsUrl, plural, siteLabel, thumbOf, todayISO, uid, usesFahrenheit, weatherIcon, weekday, type ForecastDay } from '../lib/util'
 
@@ -37,6 +38,30 @@ function smoothPath(pts: [number, number][]): string {
     d += ` C ${c1[0]} ${c1[1]}, ${c2[0]} ${c2[1]}, ${p2[0]} ${p2[1]}`
   }
   return d
+}
+
+/** The trail points covered up to fraction t, ending exactly at t (for the completed, ember part). */
+function prefix(t: number): [number, number][] {
+  const segs: number[] = []
+  let total = 0
+  for (let i = 0; i < TRAIL.length - 1; i++) {
+    const L = Math.hypot(TRAIL[i + 1][0] - TRAIL[i][0], TRAIL[i + 1][1] - TRAIL[i][1])
+    segs.push(L)
+    total += L
+  }
+  const target = Math.min(1, Math.max(0, t)) * total
+  const pts: [number, number][] = [TRAIL[0]]
+  let acc = 0
+  for (let i = 0; i < segs.length; i++) {
+    if (acc + segs[i] <= target) {
+      pts.push(TRAIL[i + 1])
+      acc += segs[i]
+    } else break
+  }
+  const end = along(t)
+  const last = pts[pts.length - 1]
+  if (Math.abs(end[0] - last[0]) > 0.5 || Math.abs(end[1] - last[1]) > 0.5) pts.push(end)
+  return pts
 }
 
 /** Position along the trail at fraction t of its length. */
@@ -272,29 +297,34 @@ export function Tracker({ trip, go, onTab }: { trip: Trip; go: (p: Page, id?: st
               <rect x="-2" y="6" width="4" height="8" />
             </g>
           ))}
-          <path d={smoothPath(TRAIL)} fill="none" stroke="var(--trail-path-bg)" strokeWidth="9" strokeLinecap="round" />
-          <path d={smoothPath(TRAIL)} fill="none" stroke="var(--trail-path)" strokeWidth="3" strokeLinecap="round" strokeDasharray="8 10" />
+          {/* remaining route: forest dashed · completed: ember dashed (B9-A) */}
+          <path d={smoothPath(TRAIL)} fill="none" stroke="var(--trail-path)" strokeWidth="7" strokeDasharray="18 13" strokeLinecap="round" opacity="0.6" />
+          {foxT > 0 && <path d={smoothPath(prefix(foxT))} fill="none" stroke="var(--trail-path-done)" strokeWidth="10" strokeDasharray="22 11" strokeLinecap="round" />}
+          {/* summit: a locked badge until the trip is done (B11-D) */}
           <g transform="translate(850 60)">
-            <line x1="0" y1="0" x2="0" y2="-36" stroke="var(--ink)" strokeWidth="2.5" />
-            <path d="M0 -36 L26 -29 L0 -22 Z" fill={phase === 'after' ? 'var(--accent)' : 'var(--trail-flag)'} />
+            <image href={`${BASE}brand/badges/${phase === 'after' ? 'badge-summit-silver-enamel.svg' : 'badge-locked-shield.svg'}`} x={-26} y={-82} width={52} height={52} />
+            <rect x={-50} y={-26} width={100} height={22} rx={11} fill="var(--tb-brand-forest)" />
+            <text className="summit-label" x={0} y={-11} textAnchor="middle">
+              {phase === 'after' ? 'Summit badge' : 'Summit'}
+            </text>
           </g>
+          {/* waypoints as mini stamps: past cancelled, today, future empty (B10-B) */}
           {days.map(d => {
             const [x, y] = along(n <= 1 ? 1 : d.i / (n - 1))
             const on = d.i === sel
+            const img = d.isToday ? 'waypoint-today' : d.done ? 'waypoint-past' : 'waypoint-future'
             return (
               <g key={d.date} className={'wp' + (d.done ? ' done' : '') + (d.isToday ? ' today' : '') + (on ? ' on' : '')} transform={`translate(${x} ${y})`} onClick={() => setSel(d.i)} style={{ cursor: 'pointer' }}>
-                <circle r={on ? 13 : 10} className="wp-ring" />
-                <circle r={on ? 9 : 6} className="wp-dot" />
-                {d.done && <path d="M-4 0 L-1 3 L4 -3" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" />}
-                <text y={28} textAnchor="middle" className="wp-label">
+                <circle r={6} fill="var(--trail-path-done)" stroke="#fff" strokeWidth={2} opacity={d.done || d.isToday ? 1 : 0.5} />
+                <image className="wp-img" href={`${BASE}brand/stamps/${img}.svg`} x={-16} y={-48} width={32} height={38} />
+                <text y={20} textAnchor="middle" className="wp-label">
                   {weekday(d.date)}
                 </text>
               </g>
             )
           })}
-          <g transform={`translate(${fx - 24} ${fy - 50})`} className="trail-fox">
-            <Fox mood={foxMood} size={48} />
-          </g>
+          {/* Scout at the current spot */}
+          <image className="trail-fox" href={`${BASE}brand/scout/${foxMood === 'excited' ? 'scout-excited' : foxMood === 'wave' ? 'scout-wave' : 'scout-happy'}.svg`} x={fx + 8} y={fy - 70} width={70} height={70} />
         </svg>
       </div>
 
