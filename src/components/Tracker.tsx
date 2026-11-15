@@ -422,7 +422,7 @@ export function Tracker({ trip, go, onTab }: { trip: Trip; go: (p: Page, id?: st
             stayDraft.open ? (
               <div className="stay-card">
                 <div className="form" style={{ gap: 8 }}>
-                  <input type="text" autoFocus value={stayDraft.title} onChange={e => setStayDraft({ ...stayDraft, title: e.target.value })} placeholder="Cabin at Government Camp" />
+                  <input type="text" autoFocus value={stayDraft.title} onChange={e => setStayDraft({ ...stayDraft, title: e.target.value })} placeholder="Cabin by the lake" />
                   <input type="text" value={stayDraft.url} onChange={e => setStayDraft({ ...stayDraft, url: e.target.value })} onKeyDown={e => e.key === 'Enter' && addStay()} placeholder="Paste the Airbnb / hotel link" />
                   <div className="pills">
                     <button type="button" className="btn primary sm" onClick={addStay} disabled={!stayDraft.title.trim() && !stayDraft.url.trim()}>

@@ -25,3 +25,7 @@ dist-ssr
 
 # PWA dev output
 dev-dist
+
+# Never commit exported data
+TravelBud-backup*.json
+*.backup.json

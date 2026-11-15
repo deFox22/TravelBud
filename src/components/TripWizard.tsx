@@ -204,10 +204,10 @@ export function TripWizard({ mode: initialMode = 'plan', onClose, onCreated }: {
           )}
           <div className="row">
             <Field label="Trip name" grow>
-              <input type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder={picked ? `${picked.name} trip` : 'Mt. Hood weekend'} />
+              <input type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder={picked ? `${picked.name} trip` : 'Two weeks in Portugal'} />
             </Field>
             <Field label="Destination (as you'd say it)" grow>
-              <input type="text" value={destination} onChange={e => setDestination(e.target.value)} placeholder="Government Camp, Oregon" />
+              <input type="text" value={destination} onChange={e => setDestination(e.target.value)} placeholder="Lisbon, Portugal" />
             </Field>
           </div>
         </div>

@@ -882,7 +882,7 @@ function Bookings({ trip, patch }: SectionProps) {
               </select>
             </Field>
             <Field label={isStay ? 'Place name' : 'What'} grow>
-              <input type="text" autoFocus value={b.title} onChange={e => setB({ ...b, title: e.target.value })} placeholder={isStay ? 'Cabin at Government Camp' : 'UA 1234 SFO → LIS…'} />
+              <input type="text" autoFocus value={b.title} onChange={e => setB({ ...b, title: e.target.value })} placeholder={isStay ? 'Cabin by the lake' : 'UA 1234 SFO → LIS…'} />
             </Field>
           </div>
           {isStay && (
