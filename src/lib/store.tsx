@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState, ty
 import { get, set } from 'idb-keyval'
 import type { AppData, HomeGuide, Sitter, Trip } from './types'
 import { backupPermission, getBackupFolder, writeBackup } from './backup'
+import { hydratePhotos, persistPhotos, stripPhotos } from './photos'
 
 const KEY = 'travelbud:data'
 
@@ -83,14 +84,22 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<AppData>(emptyData)
   const [ready, setReady] = useState(false)
   const loaded = useRef(false)
+  // Photo ids already in the photo store, so each save writes only what changed.
+  const photoIds = useRef<Set<string>>(new Set())
 
-  // Load once from IndexedDB.
+  // Load once from IndexedDB: the lean main record, then the photos it points to.
   useEffect(() => {
     let cancelled = false
     get<AppData>(KEY)
-      .then(saved => {
+      .then(async saved => {
+        if (!saved) return
+        const { data: full, stored } = await hydratePhotos(normalize(saved))
         if (cancelled) return
-        if (saved) setData(normalize(saved))
+        photoIds.current = stored
+        setData(full)
+      })
+      .then(() => {
+        if (cancelled) return
         loaded.current = true
         setReady(true)
       })
@@ -107,8 +116,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   // Persist (debounced) whenever data changes after the initial load.
   useEffect(() => {
     if (!loaded.current) return
-    const t = setTimeout(() => {
-      set(KEY, data).catch(err => console.error('Could not save data', err))
+    const t = setTimeout(async () => {
+      try {
+        photoIds.current = await persistPhotos(data, photoIds.current)
+        await set(KEY, stripPhotos(data))
+      } catch (err) {
+        console.error('Could not save data', err)
+      }
     }, 250)
     return () => clearTimeout(t)
   }, [data])

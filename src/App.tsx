@@ -16,6 +16,8 @@ import { Me } from './pages/Me'
 import { Settings } from './pages/Settings'
 import { Palette } from './components/Palette'
 import { UnlockToast } from './components/Toast'
+import { QuickCapture } from './components/QuickCapture'
+import { StampSlam } from './components/StampSlam'
 import { BADGES, earnedIds, type BadgeDef } from './lib/badges'
 import { Home as HomeIcon, Camera, Map as MapIcon, Route, Award, User, KeyRound, IdCard, ChartColumn, Settings as SettingsIcon, Search, type LucideIcon } from 'lucide-react'
 import { todayISO } from './lib/util'
@@ -43,6 +45,7 @@ export default function App() {
   const [paletteOpen, setPaletteOpen] = useState(false)
   const [shared, setShared] = useState<Trip | null>(() => readShareFromUrl())
   const [toasts, setToasts] = useState<BadgeDef[]>([])
+  const [capture, setCapture] = useState(false)
 
   // Theme: 'auto' leaves it to the OS, otherwise pin it on <html>.
   const theme = data.profile.theme
@@ -194,7 +197,7 @@ export default function App() {
         })}
       </nav>
 
-      <button type="button" className="fab" aria-label="Capture a moment" title="Capture a moment" onClick={() => go('memories', activeTrip ? `new:${activeTrip.id}` : 'new')}>
+      <button type="button" className="fab" aria-label="Capture a moment" title="Capture a moment" onClick={() => setCapture(true)}>
         <Camera size={26} strokeWidth={2.2} />
       </button>
       <span className="fab-label">Capture</span>
@@ -210,6 +213,17 @@ export default function App() {
           }}
         />
       )}
+      {capture && (
+        <QuickCapture
+          tripId={activeTrip?.id}
+          onClose={() => setCapture(false)}
+          onOpen={id => {
+            setCapture(false)
+            go('memories', id)
+          }}
+        />
+      )}
+      <StampSlam onOpen={() => go('badges')} />
       {settingsOpen && <Settings onClose={() => setSettingsOpen(false)} />}
       {paletteOpen && <Palette onClose={() => setPaletteOpen(false)} go={go} />}
       {shared && <SharedTrip trip={shared} onClose={() => setShared(null)} />}

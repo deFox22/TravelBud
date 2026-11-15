@@ -1,16 +1,24 @@
-import { Camera, ChartColumn, ChevronRight, IdCard, KeyRound, Settings as SettingsIcon, type LucideIcon } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Camera, ChartColumn, ChevronRight, IdCard, KeyRound, Settings as SettingsIcon, Share2, Smartphone, X, type LucideIcon } from 'lucide-react'
+import { backupDueAfterDays, shareBackup, supportsFolderBackup } from '../lib/backup'
+import { canPromptInstall, dismissHomeScreenTip, homeScreenTipDismissed, isIOS, isStandalone, onInstallChange, promptInstall } from '../lib/pwa'
 import type { Page } from '../lib/types'
 import { useStore } from '../lib/store'
 import { CountUp, StatStrip } from '../components/ui'
 import { Fox } from '../components/Fox'
 import { BADGES, completedTrips, isEarned, visitedPlaces } from '../lib/badges'
-import { fmtDate, plural } from '../lib/util'
+import { daysBetween, fmtDate, plural, todayISO } from '../lib/util'
 
 const BASE = import.meta.env.BASE_URL
 
 /** Me: who you are, the numbers, and the doors to everything that isn't a trip. */
 export function Me({ go, openSettings }: { go: (p: Page, id?: string) => void; openSettings: () => void }) {
-  const { data } = useStore()
+  const { data, update } = useStore()
+  const [tip, setTip] = useState(() => !isStandalone() && isIOS() && !homeScreenTipDismissed())
+  const [installable, setInstallable] = useState(canPromptInstall)
+  useEffect(() => onInstallChange(() => setInstallable(canPromptInstall())), [])
+  const since = data.profile.lastBackup ? daysBetween(data.profile.lastBackup, todayISO()) : null
+  const backupDue = since === null || since > backupDueAfterDays()
   const countries = new Set(visitedPlaces(data).map(p => p.country).filter(Boolean)).size
   const badges = BADGES.filter(b => isEarned(b, data)).length
   const rows: { icon: LucideIcon; label: string; sub: string; onClick: () => void }[] = [
@@ -20,6 +28,16 @@ export function Me({ go, openSettings }: { go: (p: Page, id?: string) => void; o
     { icon: ChartColumn, label: 'Insights & year in review', sub: 'Globe, stamps, year by year', onClick: () => go('insights') },
     { icon: SettingsIcon, label: 'Settings & backup', sub: data.profile.lastBackup ? `Last backup ${fmtDate(data.profile.lastBackup)}` : 'Theme, export, import', onClick: openSettings },
   ]
+  if (!supportsFolderBackup())
+    rows.splice(4, 0, {
+      icon: Share2,
+      label: 'Back up now',
+      sub: backupDue ? (since === null ? 'No backup yet: hand a copy to Files or iCloud Drive' : `Due: last one ${plural(since, 'day')} ago`) : `Last backup ${fmtDate(data.profile.lastBackup)} · weekly is plenty`,
+      onClick: async () => {
+        const how = await shareBackup(data)
+        if (how !== 'cancelled') update(d => ({ ...d, profile: { ...d.profile, lastBackup: todayISO() } }))
+      },
+    })
   return (
     <div className="page">
       <div className="me-head card">
@@ -39,6 +57,36 @@ export function Me({ go, openSettings }: { go: (p: Page, id?: string) => void; o
         ]}
         onPress={() => go('badges')}
       />
+      {tip && (
+        <div className="card pad home-tip">
+          <Smartphone size={22} />
+          <div>
+            <b>Put TravelBud on your Home Screen</b>
+            <p className="muted small">In Safari, tap Share, then <b>Add to Home Screen</b>. It opens full screen and works offline.</p>
+          </div>
+          <button
+            type="button"
+            className="icon-btn"
+            aria-label="Dismiss"
+            onClick={() => {
+              dismissHomeScreenTip()
+              setTip(false)
+            }}
+          >
+            <X size={16} />
+          </button>
+        </div>
+      )}
+      {installable && (
+        <button type="button" className="card pad home-tip" onClick={() => void promptInstall()}>
+          <Smartphone size={22} />
+          <div>
+            <b>Install TravelBud</b>
+            <p className="muted small">Its own window, an icon on your device, and it works offline.</p>
+          </div>
+          <ChevronRight size={18} className="muted" />
+        </button>
+      )}
       <div className="card rows">
         {rows.map(r => (
           <button type="button" key={r.label} className="row-item" onClick={r.onClick}>

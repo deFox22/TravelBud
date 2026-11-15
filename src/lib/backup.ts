@@ -70,3 +70,44 @@ export async function writeBackup(h: DirHandle, data: AppData): Promise<void> {
     await w2.close()
   }
 }
+
+/** A backup file, with or without the photos inside. */
+export function backupFile(data: AppData, opts: { photos: boolean } = { photos: true }): File {
+  const stamp = todayISO()
+  const body = opts.photos
+    ? data
+    : {
+        ...data,
+        memories: data.memories.map(m => ({ ...m, photos: [] })),
+        trips: data.trips.map(t => ({ ...t, cover: undefined, bookings: t.bookings.map(b => ({ ...b, photos: undefined })) })),
+      }
+  const json = JSON.stringify({ ...body, profile: { ...body.profile, lastBackup: stamp } })
+  return new File([json], `TravelBud-backup-${stamp}${opts.photos ? '' : '-words-only'}.json`, { type: 'application/json' })
+}
+
+/** On a phone, hand the backup to the share sheet (Files, iCloud Drive, email…); elsewhere, download it. */
+export async function shareBackup(data: AppData, opts: { photos: boolean } = { photos: true }): Promise<'shared' | 'downloaded' | 'cancelled'> {
+  const file = backupFile(data, opts)
+  const nav = navigator as Navigator & { canShare?: (d: ShareData) => boolean }
+  if (nav.share && nav.canShare && nav.canShare({ files: [file] })) {
+    try {
+      await nav.share({ files: [file], title: 'TravelBud backup' })
+      return 'shared'
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') return 'cancelled'
+      /* fall through to a download */
+    }
+  }
+  const url = URL.createObjectURL(file)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = file.name
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
+  return 'downloaded'
+}
+
+/** Phones have no folder backup, so a reminder is due after a week; elsewhere after a month. */
+export const backupDueAfterDays = (): number => (supportsFolderBackup() ? 30 : 7)

@@ -3,13 +3,13 @@ import type { Page } from '../lib/types'
 import { useStore } from '../lib/store'
 import { fmtDate, fmtRange, thumbOf, todayISO } from '../lib/util'
 import { DOC_KINDS } from '../pages/Wallet'
-import { Search } from 'lucide-react'
+import { Award, Camera, ChartColumn, Heart, Home as HomeIcon, IdCard, KeyRound, Map as MapIcon, MapPin, Plane, Route, Search, Ticket, User, type LucideIcon } from 'lucide-react'
 
 interface Hit {
   key: string
   page: Page
   id?: string
-  icon: string
+  icon: LucideIcon
   img?: string
   title: string
   sub: string
@@ -17,15 +17,15 @@ interface Hit {
 }
 
 const PAGES: Hit[] = [
-  { key: 'p-home', page: 'home', icon: '🏠', title: 'Home', sub: 'Dashboard', text: 'home dashboard' },
-  { key: 'p-mem', page: 'memories', icon: '📸', title: 'Memories', sub: 'Journal and photos', text: 'memories journal photos' },
-  { key: 'p-pl', page: 'places', icon: '🗺️', title: 'Places', sub: 'Map of everywhere', text: 'places map' },
-  { key: 'p-tr', page: 'trips', icon: '🥾', title: 'Trail', sub: 'Trips, plans and the live tracker', text: 'trail trips plan itinerary packing tracker' },
-  { key: 'p-bd', page: 'badges', icon: '🏅', title: 'Badges', sub: 'Collection: badges and stamps', text: 'badges stamps collection logbook' },
-  { key: 'p-me', page: 'me', icon: '🦊', title: 'Me', sub: 'Profile, memories, wallet, sitters, settings', text: 'me profile account settings' },
-  { key: 'p-si', page: 'sitters', icon: '🔑', title: 'Sitters', sub: 'Trusted people and home guide', text: 'sitters housesitter home guide' },
-  { key: 'p-wa', page: 'wallet', icon: '🛂', title: 'Wallet', sub: 'Documents and loyalty', text: 'wallet passport documents loyalty contacts' },
-  { key: 'p-in', page: 'insights', icon: '📊', title: 'Insights', sub: 'Stats and stamps', text: 'insights stats' },
+  { key: 'p-home', page: 'home', icon: HomeIcon, title: 'Home', sub: 'Dashboard', text: 'home dashboard' },
+  { key: 'p-mem', page: 'memories', icon: Camera, title: 'Memories', sub: 'Journal and photos', text: 'memories journal photos' },
+  { key: 'p-pl', page: 'places', icon: MapIcon, title: 'Places', sub: 'Map of everywhere', text: 'places map' },
+  { key: 'p-tr', page: 'trips', icon: Route, title: 'Trail', sub: 'Trips, plans and the live tracker', text: 'trail trips plan itinerary packing tracker' },
+  { key: 'p-bd', page: 'badges', icon: Award, title: 'Badges', sub: 'Collection: badges and stamps', text: 'badges stamps collection logbook' },
+  { key: 'p-me', page: 'me', icon: User, title: 'Me', sub: 'Profile, memories, wallet, sitters, settings', text: 'me profile account settings' },
+  { key: 'p-si', page: 'sitters', icon: KeyRound, title: 'Sitters', sub: 'Trusted people and home guide', text: 'sitters housesitter home guide' },
+  { key: 'p-wa', page: 'wallet', icon: IdCard, title: 'Wallet', sub: 'Documents and loyalty', text: 'wallet passport documents loyalty contacts' },
+  { key: 'p-in', page: 'insights', icon: ChartColumn, title: 'Insights', sub: 'Stats and stamps', text: 'insights stats' },
 ]
 
 export function Palette({ onClose, go }: { onClose: () => void; go: (p: Page, id?: string) => void }) {
@@ -41,7 +41,7 @@ export function Palette({ onClose, go }: { onClose: () => void; go: (p: Page, id
         key: 't' + t.id,
         page: 'trips' as Page,
         id: t.id,
-        icon: '✈️',
+        icon: Plane,
         img: t.cover,
         title: t.title,
         sub: [t.destination, fmtRange(t.startDate, t.endDate)].filter(Boolean).join(' · '),
@@ -51,7 +51,7 @@ export function Palette({ onClose, go }: { onClose: () => void; go: (p: Page, id
         key: 'm' + m.id,
         page: 'memories' as Page,
         id: m.id,
-        icon: '📸',
+        icon: Camera,
         img: m.photos[0] ? thumbOf(m.photos[0]) : undefined,
         title: m.title,
         sub: [fmtDate(m.date), m.locationText].filter(Boolean).join(' · '),
@@ -61,22 +61,22 @@ export function Palette({ onClose, go }: { onClose: () => void; go: (p: Page, id
         key: 'p' + p.id,
         page: 'places' as Page,
         id: p.id,
-        icon: p.status === 'visited' ? '📍' : '💭',
+        icon: p.status === 'visited' ? MapPin : Heart,
         title: p.name,
         sub: [p.country, p.status === 'wishlist' ? 'wishlist' : ''].filter(Boolean).join(' · '),
         text: [p.name, p.country, p.notes].join(' '),
       })),
-      ...data.sitters.map(s => ({ key: 's' + s.id, page: 'sitters' as Page, id: s.id, icon: '🔑', title: s.name, sub: s.role, text: [s.name, s.role, s.notes].join(' ') })),
+      ...data.sitters.map(s => ({ key: 's' + s.id, page: 'sitters' as Page, id: s.id, icon: KeyRound, title: s.name, sub: s.role, text: [s.name, s.role, s.notes].join(' ') })),
       ...data.docs.map(d => ({
         key: 'd' + d.id,
         page: 'wallet' as Page,
         id: d.id,
-        icon: DOC_KINDS[d.kind].icon,
+        icon: IdCard,
         title: d.label || DOC_KINDS[d.kind].label,
         sub: d.expires ? `Expires ${fmtDate(d.expires)}` : DOC_KINDS[d.kind].label,
         text: [d.label, d.holder, d.kind, DOC_KINDS[d.kind].label].join(' '),
       })),
-      ...data.loyalty.map(l => ({ key: 'l' + l.id, page: 'wallet' as Page, id: l.id, icon: '🎫', title: l.program, sub: l.tier || 'Loyalty program', text: [l.program, l.tier].join(' ') })),
+      ...data.loyalty.map(l => ({ key: 'l' + l.id, page: 'wallet' as Page, id: l.id, icon: Ticket, title: l.program, sub: l.tier || 'Loyalty program', text: [l.program, l.tier].join(' ') })),
     ],
     [data],
   )
@@ -156,7 +156,7 @@ export function Palette({ onClose, go }: { onClose: () => void; go: (p: Page, id
           {hits.length === 0 && <div className="palette-empty">Nothing matches "{q}".</div>}
           {hits.map((h, i) => (
             <button type="button" key={h.key} data-i={i} className={'palette-hit' + (i === idx ? ' on' : '')} onMouseEnter={() => setIdx(i)} onClick={() => pick(h)}>
-              {h.img ? <img src={h.img} alt="" /> : <span className="palette-ico">{h.icon}</span>}
+              {h.img ? <img src={h.img} alt="" /> : <span className="palette-ico"><h.icon size={18} strokeWidth={2} /></span>}
               <span className="palette-text">
                 <span className="palette-title">{h.title}</span>
                 <span className="palette-sub">{h.sub}</span>

@@ -13,6 +13,7 @@ import { Plus, Share2, Printer, Play, ArrowLeft, Pencil, Trash2, Compass, Extern
 const party = () =>
   confetti({ particleCount: 160, spread: 75, startVelocity: 38, origin: { y: 0.65 }, colors: ['#15605d', '#2b8f85', '#d9734a', '#d9a441', '#fffcf7'] })
 import { useStore } from '../lib/store'
+import { announceStamp } from '../lib/events'
 import { Empty, Field, Modal, PageHeader, Pill, Progress, StatusChip } from '../components/ui'
 import { addDays, daysBetween, daysUntil, fetchForecast, fmtDate, fmtMoney, fmtRange, hostOf, makePhoto, mapsUrl, plural, resizeImage, siteLabel, thumbOf, todayISO, uid, usesFahrenheit, weatherIcon, weekday, type ForecastDay } from '../lib/util'
 import { Flag as FlagIcon } from '../components/ui'
@@ -286,7 +287,7 @@ function TripForm({ initial, onClose, onSave }: { initial?: Trip; onClose: () =>
   )
 }
 
-type Tab = 'trail' | 'overview' | 'itinerary' | 'ideas' | 'packing' | 'bookings' | 'budget' | 'album'
+type Tab = 'trail' | 'overview' | 'itinerary' | 'packing' | 'budget' | 'album'
 
 function TripDetail({ trip, onBack, go }: { trip: Trip; onBack: () => void; go: (p: Page, id?: string) => void }) {
   const { data, update } = useStore()
@@ -316,12 +317,10 @@ function TripDetail({ trip, onBack, go }: { trip: Trip; onBack: () => void; go: 
 
   const isPast = trip.status === 'completed' || (!!trip.endDate && trip.endDate < todayISO())
   const tabs: { id: Tab; label: string; n?: number }[] = [
-    { id: 'trail', label: '🏔️ Trail' },
+    { id: 'trail', label: 'Trail' },
     { id: 'overview', label: 'Overview' },
-    { id: 'itinerary', label: 'Itinerary', n: trip.itinerary.reduce((s, day) => s + day.items.length, 0) },
-    { id: 'ideas', label: 'Ideas', n: trip.ideas.filter(i => !i.scheduled).length },
+    { id: 'itinerary', label: 'Itinerary', n: trip.itinerary.reduce((s, day) => s + day.items.length, 0) + trip.ideas.filter(i => !i.scheduled).length },
     { id: 'packing', label: 'Packing', n: trip.packing.length },
-    { id: 'bookings', label: 'Bookings', n: trip.bookings.length },
     { id: 'budget', label: 'Budget', n: trip.expenses.length },
     { id: 'album', label: 'Album', n: album.length },
   ]
@@ -482,7 +481,9 @@ function TripDetail({ trip, onBack, go }: { trip: Trip; onBack: () => void; go: 
                     party()
                     patch({ status: 'completed' })
                     if (trip.placeIds.length) {
+                      const fresh = data.places.filter(p => trip.placeIds.includes(p.id) && p.status !== 'visited').map(p => p.id)
                       update(d => ({ ...d, places: d.places.map(p => (trip.placeIds.includes(p.id) ? { ...p, status: 'visited', firstVisited: p.firstVisited ?? trip.startDate ?? undefined } : p)) }))
+                      fresh.forEach((id, i) => setTimeout(() => announceStamp(id), 900 + i * 2700))
                     }
                     if (sitter && trip.startDate && trip.endDate && !sitter.stints.some(s => s.tripId === trip.id)) {
                       update(d => ({
@@ -499,12 +500,22 @@ function TripDetail({ trip, onBack, go }: { trip: Trip; onBack: () => void; go: 
           </div>
         </div>
       )}
+      {tab === 'overview' && (
+        <>
+          <h2 className="section-h">Bookings</h2>
+          <Bookings trip={trip} patch={patch} />
+        </>
+      )}
 
       {tab === 'trail' && <Tracker trip={trip} go={go} onTab={setTab} />}
-      {tab === 'itinerary' && <Itinerary trip={trip} patch={patch} />}
+      {tab === 'itinerary' && (
+        <>
+          <Itinerary trip={trip} patch={patch} />
+          <h2 className="section-h">Ideas inbox</h2>
+          <Ideas trip={trip} patch={patch} />
+        </>
+      )}
       {tab === 'packing' && <Packing trip={trip} patch={patch} />}
-      {tab === 'bookings' && <Bookings trip={trip} patch={patch} />}
-      {tab === 'ideas' && <Ideas trip={trip} patch={patch} />}
       {tab === 'budget' && <Budget trip={trip} patch={patch} />}
       {tab === 'album' && <Album trip={trip} memories={album} go={go} />}
 

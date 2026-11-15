@@ -3,6 +3,7 @@ import { MapContainer, Marker, Polyline, Popup, TileLayer, useMap, useMapEvents 
 import L from 'leaflet'
 import type { Memory, Page, Place, PlaceStatus } from '../lib/types'
 import { useStore } from '../lib/store'
+import { announceStamp } from '../lib/events'
 import { Empty, Field, Flag, Modal, PageHeader, Pill, Stars } from '../components/ui'
 import { fmtDate, geocode, plural, reverseGeocode, thumbOf, todayISO, uid, type GeoResult } from '../lib/util'
 import { Plus } from 'lucide-react'
@@ -92,6 +93,8 @@ export function Places({ focusId, clearFocus, go }: { focusId: string | null; cl
 
   const savePlace = (d: Draft) => {
     const place: Place = { ...d, id: d.id ?? uid(), createdAt: d.createdAt ?? new Date().toISOString() }
+    const before = data.places.find(p => p.id === place.id)
+    if (place.status === 'visited' && before?.status !== 'visited') setTimeout(() => announceStamp(place.id), 150)
     update(s => ({
       ...s,
       places: s.places.some(p => p.id === place.id) ? s.places.map(p => (p.id === place.id ? place : p)) : [...s.places, place],

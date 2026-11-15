@@ -1,11 +1,13 @@
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import type { Page } from '../lib/types'
 import { useStore } from '../lib/store'
 import { CountUp, StatStrip } from '../components/ui'
 import { TripCard } from '../components/TripCard'
-import { Camera, Map as MapIcon, Plane, Compass, Backpack, CircleDollarSign, Award, Footprints } from 'lucide-react'
+import { Camera, Map as MapIcon, Plane, Compass, Backpack, CircleDollarSign, Award, Footprints, Share2 } from 'lucide-react'
 import { FoxSays, type FoxAction } from '../components/Fox'
-import { backupPermission, getBackupFolder, requestBackupPermission } from '../lib/backup'
+import { backupDueAfterDays, backupPermission, getBackupFolder, requestBackupPermission, shareBackup, supportsFolderBackup } from '../lib/backup'
+
+const WorldGlobe = lazy(() => import('../components/Globe'))
 import { DOC_KINDS, docStatus } from './Wallet'
 import { addDays, daysBetween, daysUntil, fmtDate, fmtRange, plural, thumbOf, todayISO } from '../lib/util'
 import { BADGES, isEarned } from '../lib/badges'
@@ -46,8 +48,7 @@ export function Home({ go }: { go: (p: Page, id?: string) => void }) {
   if (next && !active && daysUntil(next.startDate) <= 14 && !next.sitterId && data.sitters.length > 0) alerts.push(`No sitter assigned for ${next.title} yet.`)
   const items = data.memories.length + data.trips.length + data.places.length + data.docs.length
   const sinceBackup = data.profile.lastBackup ? daysBetween(data.profile.lastBackup, today) : null
-  if (items >= 5 && (sinceBackup === null || sinceBackup > 30))
-    alerts.push(sinceBackup === null ? 'You have never exported a backup. Everything lives only in this browser, so grab one from Settings & backup.' : `It has been ${plural(sinceBackup, 'day')} since your last backup.`)
+  const backupDue = items >= 5 && (sinceBackup === null || sinceBackup > backupDueAfterDays())
 
   // A memory to revisit: rotates daily, favorites first.
   const pool = data.memories.length > 1 ? data.memories.filter(m => m.photos.length > 0 || m.body) : []
@@ -104,6 +105,7 @@ export function Home({ go }: { go: (p: Page, id?: string) => void }) {
       )}
 
       <BackupNudge />
+      {backupDue && <BackupReminder sinceDays={sinceBackup} />}
 
       {empty && (
         <div className="welcome">
@@ -251,6 +253,19 @@ export function Home({ go }: { go: (p: Page, id?: string) => void }) {
           </div>
         )}
 
+        {visited.length > 0 && (
+          <button type="button" className="card globe-row" onClick={() => go('insights')}>
+            <div className="globe-row-text">
+              <span className="eyebrow">Your world</span>
+              <h2>{plural(countries.size, 'country', 'countries')} lit up</h2>
+              <span className="muted small">Open Insights for the globe and your year in review</span>
+            </div>
+            <Suspense fallback={<div className="globe-loading" />}>
+              <WorldGlobe height={150} interactive={false} />
+            </Suspense>
+          </button>
+        )}
+
         {active && (
           <div className="card pad">
             <h2>While you're there</h2>
@@ -265,6 +280,39 @@ export function Home({ go }: { go: (p: Page, id?: string) => void }) {
           </div>
         )}
       </div>
+    </div>
+  )
+}
+
+/** A backup is due: never made, or older than a week on a phone (a month where a folder backup can run). */
+function BackupReminder({ sinceDays }: { sinceDays: number | null }) {
+  const { data, update } = useStore()
+  const [done, setDone] = useState('')
+  const phone = !supportsFolderBackup()
+  return (
+    <div className="card pad alerts backup-reminder">
+      <h3>{sinceDays === null ? 'No backup yet' : `Last backup ${plural(sinceDays, 'day')} ago`}</h3>
+      <p className="small" style={{ margin: '4px 0 10px' }}>
+        {phone
+          ? 'Everything lives only on this phone. Hand a copy to Files or iCloud Drive now and then; it takes two taps.'
+          : 'Everything lives only in this browser. Export a copy, or pick a backup folder in Settings and it stays current by itself.'}
+      </p>
+      {done ? (
+        <p className="small" style={{ color: 'var(--primary)' }}>{done}</p>
+      ) : (
+        <button
+          type="button"
+          className="btn primary sm"
+          onClick={async () => {
+            const how = await shareBackup(data)
+            if (how === 'cancelled') return
+            update(d => ({ ...d, profile: { ...d.profile, lastBackup: todayISO() } }))
+            setDone(how === 'shared' ? 'Saved through the share sheet. Scout will nudge you again in a week.' : 'Downloaded. Keep it in a cloud folder.')
+          }}
+        >
+          <Share2 size={14} /> Back up now
+        </button>
+      )}
     </div>
   )
 }

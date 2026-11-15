@@ -2,21 +2,21 @@ import { useEffect, useRef, useState } from 'react'
 import type { AppData, Theme } from '../lib/types'
 import { emptyData, normalize, useStore } from '../lib/store'
 import { Field, Modal } from '../components/ui'
-import { download, plural, todayISO } from '../lib/util'
+import { plural, todayISO } from '../lib/util'
 import { Fox } from '../components/Fox'
-import { Download, Upload, FolderCheck, FolderOpen } from 'lucide-react'
-import { backupPermission, chooseBackupFolder, forgetBackupFolder, getBackupFolder, requestBackupPermission, supportsFolderBackup, writeBackup } from '../lib/backup'
+import { Download, Upload, FolderCheck, FolderOpen, FileText } from 'lucide-react'
+import { backupPermission, chooseBackupFolder, forgetBackupFolder, getBackupFolder, requestBackupPermission, shareBackup, supportsFolderBackup, writeBackup } from '../lib/backup'
 
 export function Settings({ onClose }: { onClose: () => void }) {
   const { data, update, replace } = useStore()
   const [msg, setMsg] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
 
-  const exportJson = () => {
-    const stamp = todayISO()
-    download(`travelbud-backup-${stamp}.json`, JSON.stringify({ ...data, profile: { ...data.profile, lastBackup: stamp } }, null, 2))
-    update(d => ({ ...d, profile: { ...d.profile, lastBackup: stamp } }))
-    setMsg('Backup downloaded. Keep it somewhere safe, like a cloud drive.')
+  const exportJson = async (photos = true) => {
+    const how = await shareBackup(data, { photos })
+    if (how === 'cancelled') return
+    if (photos) update(d => ({ ...d, profile: { ...d.profile, lastBackup: todayISO() } }))
+    setMsg(how === 'shared' ? 'Backup handed to the share sheet. Save it to Files, iCloud Drive or a cloud folder.' : 'Backup downloaded. Keep it somewhere safe, like a cloud drive.')
   }
 
   const importJson = async (f: File | undefined) => {
@@ -98,8 +98,11 @@ export function Settings({ onClose }: { onClose: () => void }) {
           </p>
         </div>
         <div className="row">
-          <button type="button" className="btn primary" onClick={exportJson}>
+          <button type="button" className="btn primary" onClick={() => exportJson(true)}>
             <Download size={15} /> Export backup
+          </button>
+          <button type="button" className="btn" onClick={() => exportJson(false)} title="Everything except the pictures: small enough to email">
+            <FileText size={15} /> Words only
           </button>
           <label className="btn file-btn" style={{ justifyContent: 'center' }}>
             <input ref={fileRef} type="file" accept="application/json,.json" onChange={e => importJson(e.target.files?.[0])} />
@@ -111,7 +114,7 @@ export function Settings({ onClose }: { onClose: () => void }) {
         <div>
           <h3 style={{ fontSize: 16, marginBottom: 4 }}>Automatic backup</h3>
           {!supportsFolderBackup() ? (
-            <p className="muted small">Available in Chrome or Edge on a computer: pick a folder once (a cloud-synced one is ideal) and TravelBud keeps a backup file there up to date. On a phone, export a backup now and then.</p>
+            <p className="muted small">Available in Chrome or Edge on a computer: pick a folder once (a cloud-synced one is ideal) and TravelBud keeps a backup file there up to date. On a phone, tap <b>Export backup</b> every week or so and save it to Files or iCloud Drive; Scout reminds you when one is due.</p>
           ) : folder ? (
             <div className="pills">
               <span className="pill green">
