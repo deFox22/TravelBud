@@ -29,3 +29,5 @@ dev-dist
 # Never commit exported data
 TravelBud-backup*.json
 *.backup.json
+mt-hood-qr.png
+mt-hood-link.txt

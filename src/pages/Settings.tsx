@@ -4,12 +4,15 @@ import { emptyData, normalize, useStore } from '../lib/store'
 import { Field, Modal } from '../components/ui'
 import { plural, todayISO } from '../lib/util'
 import { Fox } from '../components/Fox'
-import { Download, Upload, FolderCheck, FolderOpen, FileText } from 'lucide-react'
+import { Download, Upload, FolderCheck, FolderOpen, FileText, Smartphone } from 'lucide-react'
+import { transferUrl } from '../lib/share'
+import QRCode from 'qrcode'
 import { backupPermission, chooseBackupFolder, forgetBackupFolder, getBackupFolder, requestBackupPermission, shareBackup, supportsFolderBackup, writeBackup } from '../lib/backup'
 
 export function Settings({ onClose }: { onClose: () => void }) {
   const { data, update, replace } = useStore()
   const [msg, setMsg] = useState('')
+  const [qr, setQr] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
   const exportJson = async (photos = true) => {
@@ -17,6 +20,39 @@ export function Settings({ onClose }: { onClose: () => void }) {
     if (how === 'cancelled') return
     if (photos) update(d => ({ ...d, profile: { ...d.profile, lastBackup: todayISO() } }))
     setMsg(how === 'shared' ? 'Backup handed to the share sheet. Save it to Files, iCloud Drive or a cloud folder.' : 'Backup downloaded. Keep it somewhere safe, like a cloud drive.')
+  }
+
+  const sendToDevice = async () => {
+    const url = transferUrl(data)
+    if (url.length > 60_000) {
+      setMsg('Too much to fit in a link. Use Export backup and move the file instead.')
+      return
+    }
+    if (url.length <= 2900) {
+      try {
+        setQr(await QRCode.toDataURL(url, { errorCorrectionLevel: url.length > 2300 ? 'L' : 'M', margin: 2, scale: 6, color: { dark: '#1F3B2D', light: '#FFFFFF' } }))
+        setMsg('Point the phone camera at the code, open the link, tap Import.')
+        return
+      } catch {
+        /* fall through to the link */
+      }
+    }
+    const nav = navigator as Navigator & { share?: (d: ShareData) => Promise<void> }
+    if (nav.share) {
+      try {
+        await nav.share({ url, title: 'TravelBud: open on your phone' })
+        setMsg('Link sent. Open it on the other device and tap Import.')
+        return
+      } catch {
+        /* cancelled or unsupported: fall through */
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(url)
+      setMsg(`Link copied (${Math.round(url.length / 1000)}k characters). Email or message it to yourself and open it on the other device.`)
+    } catch {
+      setMsg('Could not copy the link. Use Export backup instead.')
+    }
   }
 
   const importJson = async (f: File | undefined) => {
@@ -104,12 +140,23 @@ export function Settings({ onClose }: { onClose: () => void }) {
           <button type="button" className="btn" onClick={() => exportJson(false)} title="Everything except the pictures: small enough to email">
             <FileText size={15} /> Words only
           </button>
+          <button type="button" className="btn" onClick={sendToDevice} title="A link that carries everything except photos; open it on the other device">
+            <Smartphone size={15} /> Send to another device
+          </button>
           <label className="btn file-btn" style={{ justifyContent: 'center' }}>
             <input ref={fileRef} type="file" accept="application/json,.json" onChange={e => importJson(e.target.files?.[0])} />
             <Upload size={15} /> Import backup
           </label>
         </div>
         {msg && <p className="small" style={{ color: 'var(--primary)' }}>{msg}</p>}
+        {qr && (
+          <div className="qr-box">
+            <img src={qr} alt="QR code that opens TravelBud with your data on another device" />
+            <button type="button" className="btn sm" onClick={() => setQr(null)}>
+              Hide code
+            </button>
+          </div>
+        )}
 
         <div>
           <h3 style={{ fontSize: 16, marginBottom: 4 }}>Automatic backup</h3>

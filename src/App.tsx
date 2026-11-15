@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import type { Page, Trip } from './lib/types'
+import type { AppData, Page, Trip } from './lib/types'
 import { Fox } from './components/Fox'
 import { SharedTrip } from './components/SharedTrip'
-import { readShareFromUrl } from './lib/share'
+import { readShareFromUrl, readTransferFromUrl } from './lib/share'
+import { ImportSheet } from './components/ImportSheet'
 import { useStore } from './lib/store'
 import { Home } from './pages/Home'
 import { Memories } from './pages/Memories'
@@ -44,6 +45,7 @@ export default function App() {
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [paletteOpen, setPaletteOpen] = useState(false)
   const [shared, setShared] = useState<Trip | null>(() => readShareFromUrl())
+  const [incoming, setIncoming] = useState<AppData | null>(() => readTransferFromUrl())
   const [toasts, setToasts] = useState<BadgeDef[]>([])
   const [capture, setCapture] = useState(false)
 
@@ -227,6 +229,7 @@ export default function App() {
       {settingsOpen && <Settings onClose={() => setSettingsOpen(false)} />}
       {paletteOpen && <Palette onClose={() => setPaletteOpen(false)} go={go} />}
       {shared && <SharedTrip trip={shared} onClose={() => setShared(null)} />}
+      {incoming && ready && <ImportSheet incoming={incoming} onClose={() => setIncoming(null)} />}
     </div>
   )
 }

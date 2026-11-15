@@ -37,3 +37,44 @@ export function readShareFromUrl(): Trip | null {
 export function clearShareFromUrl() {
   history.replaceState(null, '', location.pathname + location.search)
 }
+
+/* ---------- moving everything to another device ----------
+   The whole data set, minus pictures, packed into a link. Open it on the other device and
+   TravelBud offers to import it. Small enough to text, email or show as a QR code. */
+
+import type { AppData } from './types'
+
+interface TransferEnvelope {
+  v: 1
+  kind: 'transfer'
+  data: AppData
+}
+
+export const wordsOnly = (d: AppData): AppData => ({
+  ...d,
+  memories: d.memories.map(m => ({ ...m, photos: m.photos.map(p => ({ id: p.id, dataUrl: '', ...(p.caption ? { caption: p.caption } : {}) })) })),
+  trips: d.trips.map(t => ({ ...t, cover: undefined, bookings: t.bookings.map(b => ({ ...b, photos: undefined })) })),
+})
+
+export const encodeTransfer = (d: AppData): string => compressToEncodedURIComponent(JSON.stringify({ v: 1, kind: 'transfer', data: wordsOnly(d) } satisfies TransferEnvelope))
+
+export function decodeTransfer(code: string): AppData | null {
+  try {
+    const raw = decompressFromEncodedURIComponent(code)
+    if (!raw) return null
+    const env = JSON.parse(raw) as Partial<TransferEnvelope>
+    if (env.v !== 1 || env.kind !== 'transfer' || !env.data || !Array.isArray(env.data.trips)) return null
+    // Photos were left behind on purpose: drop the empty shells so nothing shows a broken picture.
+    const d = env.data
+    return { ...d, memories: d.memories.map(m => ({ ...m, photos: [] })) }
+  } catch {
+    return null
+  }
+}
+
+export const transferUrl = (d: AppData): string => `${location.origin}${location.pathname}#import=${encodeTransfer(d)}`
+
+export function readTransferFromUrl(): AppData | null {
+  const m = location.hash.match(/^#import=(.+)$/)
+  return m ? decodeTransfer(m[1]) : null
+}

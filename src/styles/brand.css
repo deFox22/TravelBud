@@ -422,3 +422,12 @@ button.home-tip { cursor: pointer; }
 
 /* ---------- trip detail: stacked sections ---------- */
 .section-h { font-size: 22px; margin-top: 8px; }
+
+/* ---------- import sheet ---------- */
+.import-sheet { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; padding: 6px 0; }
+.import-sheet p { max-width: 380px; }
+.import-warn { display: flex; gap: 8px; align-items: flex-start; text-align: left; background: var(--tb-chip-planning-bg); color: var(--tb-chip-planning-fg); padding: 10px 12px; border-radius: var(--tb-radius-md); font-size: 14px; }
+.import-warn svg { flex: none; margin-top: 2px; }
+
+.qr-box { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 14px; background: #fff; border-radius: var(--tb-radius-lg); box-shadow: var(--tb-shadow-card); align-self: center; }
+.qr-box img { width: min(100%, 360px); height: auto; image-rendering: pixelated; display: block; }
