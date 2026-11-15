@@ -6,6 +6,7 @@ import { Tracker } from '../components/Tracker'
 import { Globe, MapPin, Luggage, Camera, KeyRound, Map as MapIcon, Plane, IdCard, ChartColumn, Compass, CircleDollarSign, ListChecks, Backpack, type LucideIcon } from 'lucide-react'
 import { FoxSays, type FoxAction } from '../components/Fox'
 import { fetchLocalNow, weatherIcon, type LocalNow } from '../lib/util'
+import { backupPermission, getBackupFolder, requestBackupPermission } from '../lib/backup'
 
 const WorldGlobe = lazy(() => import('../components/Globe'))
 import { DOC_KINDS, docStatus } from './Wallet'
@@ -90,7 +91,7 @@ export function Home({ go }: { go: (p: Page, tripId?: string) => void }) {
                 : { mood: 'think', text: 'Nothing on the calendar. Even a far-off idea counts, and if you are already somewhere, tell me and I will set it up around today.', actions: planNow }
 
   return (
-    <div className="page">
+    <div className="page home">
       <div className="hero-greet">
         <div>
           <h1>
@@ -115,6 +116,8 @@ export function Home({ go }: { go: (p: Page, tripId?: string) => void }) {
       <FoxSays mood={scout.mood} actions={scout.actions}>
         {scout.text}
       </FoxSays>
+
+      <BackupNudge />
 
       {data.trips.length + data.memories.length + data.places.length === 0 && (
         <div className="welcome">
@@ -416,6 +419,41 @@ function DestinationNow({ place }: { place: Place }) {
       <span title={w.label}>
         {w.icon} {now.temp}° right now
       </span>
+    </div>
+  )
+}
+
+/** After a browser restart the backup folder needs one click to resume. */
+function BackupNudge() {
+  const [state, setState] = useState<'hidden' | 'prompt' | 'ok'>('hidden')
+  useEffect(() => {
+    let cancelled = false
+    getBackupFolder().then(async h => {
+      if (!h || cancelled) return
+      const p = await backupPermission(h)
+      if (!cancelled) setState(p === 'prompt' ? 'prompt' : 'hidden')
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+  if (state !== 'prompt') return null
+  return (
+    <div className="card pad alerts" style={{ order: 1 }}>
+      <h3>Automatic backup is paused</h3>
+      <p className="small" style={{ margin: '4px 0 10px' }}>The browser needs a click to let TravelBud write to your backup folder again.</p>
+      <button
+        type="button"
+        className="btn primary sm"
+        onClick={async () => {
+          const h = await getBackupFolder()
+          if (!h) return
+          const p = await requestBackupPermission(h)
+          setState(p === 'granted' ? 'hidden' : 'prompt')
+        }}
+      >
+        Resume backups
+      </button>
     </div>
   )
 }

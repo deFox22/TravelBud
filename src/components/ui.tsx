@@ -230,6 +230,7 @@ export function Flag({ cc, fallback }: { cc?: string; fallback?: string }) {
       height={15}
       alt={code.toUpperCase()}
       loading="lazy"
+      crossOrigin="anonymous"
     />
   )
 }

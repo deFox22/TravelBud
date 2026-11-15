@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Camera, CircleDollarSign, ListChecks, Pencil, Plus, StickyNote, ExternalLink, MapPin, Wifi, KeyRound, Images, BedDouble } from 'lucide-react'
+import { Camera, CircleDollarSign, ListChecks, Pencil, Plus, StickyNote, ExternalLink, MapPin, Wifi, KeyRound, Images, BedDouble, WifiOff, Check } from 'lucide-react'
+import { saveMapOffline, supportsOffline } from '../lib/offline'
 import type { Page, Photo, Trip } from '../lib/types'
 import { useStore } from '../lib/store'
 import { Fox } from './Fox'
@@ -155,6 +156,15 @@ export function Tracker({ trip, go, onTab }: { trip: Trip; go: (p: Page, id?: st
     setStayBusy(false)
   }
 
+  // Offline map for the destination.
+  const [offline, setOffline] = useState<{ busy: boolean; done: number; total: number; saved: boolean }>({ busy: false, done: 0, total: 0, saved: false })
+  const saveOffline = async () => {
+    if (!place) return
+    setOffline({ busy: true, done: 0, total: 0, saved: false })
+    await saveMapOffline(place.lat, place.lng, (done, total) => setOffline({ busy: true, done, total, saved: false }))
+    setOffline(o => ({ ...o, busy: false, saved: true }))
+  }
+
   // Quick note appended to the trip notes with the date.
   const [note, setNote] = useState('')
   const [noteOpen, setNoteOpen] = useState(false)
@@ -287,6 +297,18 @@ export function Tracker({ trip, go, onTab }: { trip: Trip; go: (p: Page, id?: st
           </g>
         </svg>
       </div>
+
+      {days.length > 0 && (
+        <div className="trail-days" role="tablist">
+          {days.map(d => (
+            <button type="button" key={d.date} role="tab" aria-selected={d.i === sel} className={(d.done ? 'done ' : '') + (d.isToday ? 'today ' : '') + (d.i === sel ? 'on' : '')} onClick={() => setSel(d.i)}>
+              <span className="wd">{weekday(d.date)}</span>
+              <span className="dn">{d.date.slice(8)}</span>
+              <span className="st">{d.isToday ? 'today' : d.done ? '✓ done' : `day ${d.i + 1}`}</span>
+            </button>
+          ))}
+        </div>
+      )}
 
       <div className="tracker-grid">
         <div className="tracker-today">
@@ -480,6 +502,17 @@ export function Tracker({ trip, go, onTab }: { trip: Trip; go: (p: Page, id?: st
             </div>
           )}
           {!place && <p className="muted small">Link a place to this trip (Overview tab) for the forecast on the trail.</p>}
+          {place && supportsOffline() && phase !== 'after' && (
+            <button type="button" className="tracker-stat" onClick={saveOffline} disabled={offline.busy}>
+              {offline.saved ? <Check size={22} /> : <WifiOff size={22} />}
+              <div>
+                <div className="tracker-stat-n" style={{ fontSize: 16 }}>
+                  {offline.busy ? `Saving map… ${offline.total ? Math.round((offline.done / offline.total) * 100) : 0}%` : offline.saved ? <span className="offline-ok">Map saved for offline</span> : 'Save map for offline'}
+                </div>
+                <div className="muted small">{offline.saved ? `${place.name} works without signal` : `About 12 km around ${place.name}`}</div>
+              </div>
+            </button>
+          )}
         </div>
       </div>
     </section>

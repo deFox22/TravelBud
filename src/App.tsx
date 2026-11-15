@@ -14,6 +14,7 @@ import { Insights } from './pages/Insights'
 import { Settings } from './pages/Settings'
 import { Palette } from './components/Palette'
 import { Home as HomeIcon, Camera, Map as MapIcon, Plane, KeyRound, IdCard, ChartColumn, Settings as SettingsIcon, Search, Menu, type LucideIcon } from 'lucide-react'
+import { todayISO } from './lib/util'
 
 const NAV: { id: Page; label: string; icon: LucideIcon; primary?: boolean }[] = [
   { id: 'home', label: 'Home', icon: HomeIcon, primary: true },
@@ -84,6 +85,8 @@ export default function App() {
 
   const secondary = NAV.filter(n => !n.primary)
   const moreActive = secondary.some(n => n.id === page)
+  const today = todayISO()
+  const activeTrip = data.trips.find(t => t.status !== 'completed' && t.startDate && t.endDate && t.startDate <= today && t.endDate >= today)
 
   return (
     <div className="app">
@@ -195,6 +198,11 @@ export default function App() {
           </div>
         </div>
       )}
+
+      <button type="button" className="fab" aria-label="Capture a moment" title="Capture a moment" onClick={() => go('memories', activeTrip ? `new:${activeTrip.id}` : 'new')}>
+        <Camera size={26} strokeWidth={2.2} />
+      </button>
+      <span className="fab-label">Capture</span>
 
       {settingsOpen && <Settings onClose={() => setSettingsOpen(false)} />}
       {paletteOpen && <Palette onClose={() => setPaletteOpen(false)} go={go} />}

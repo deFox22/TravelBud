@@ -3,7 +3,9 @@ import type { Memory, Photo, Place, Trip } from '../lib/types'
 import { useStore } from '../lib/store'
 import { Empty, Field, Flag, Modal, PageHeader, Pill, TagInput } from '../components/ui'
 import { Slideshow } from '../components/Slideshow'
-import { Plus, Play } from 'lucide-react'
+import { Plus, Play, Camera, Images } from 'lucide-react'
+
+const touchDevice = typeof window !== 'undefined' && window.matchMedia('(hover: none)').matches
 import { fmtDate, isHeic, makePhoto, plural, readExif, reverseGeocode, thumbOf, todayISO, uid } from '../lib/util'
 
 export function Memories({ focusId, clearFocus }: { focusId: string | null; clearFocus: () => void }) {
@@ -288,9 +290,17 @@ function MemoryForm({ initial, preset, places, trips, onSave, onClose }: { initi
                 </button>
               </div>
             ))}
-            <label className="add">
+          </div>
+          <div className="photo-pick" style={{ marginTop: 8 }}>
+            {touchDevice && (
+              <label className="btn primary">
+                <input type="file" accept="image/*" capture="environment" onChange={e => addPhotos(e.target.files)} disabled={Boolean(busy)} />
+                <Camera size={15} /> Take a photo
+              </label>
+            )}
+            <label className="btn">
               <input type="file" accept="image/*" multiple onChange={e => addPhotos(e.target.files)} disabled={Boolean(busy)} />
-              <span>{busy ? '…' : '+ Add'}</span>
+              <Images size={15} /> {touchDevice ? 'Choose from library' : 'Add photos'}
             </label>
           </div>
           {busy && <span className="hint">{busy}</span>}

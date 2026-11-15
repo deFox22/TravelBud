@@ -141,7 +141,7 @@ export function Places({ focusId, clearFocus, go }: { focusId: string | null; cl
       <div className="places-layout">
         <div className="map-wrap">
           <MapContainer center={[22, 10]} zoom={2} minZoom={2} worldCopyJump scrollWheelZoom style={{ height: '100%' }}>
-            <TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' url="https://tile.openstreetmap.org/{z}/{x}/{y}.png" maxZoom={19} />
+            <TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' url="https://tile.openstreetmap.org/{z}/{x}/{y}.png" maxZoom={19} crossOrigin="anonymous" />
             <FlyTo target={flyTo} />
             <ClickCatcher onClick={onMapClick} />
             <FitOnce places={data.places} skip={Boolean(focusId)} />

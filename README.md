@@ -12,6 +12,12 @@ Everything is stored privately in your browser on this device. Nothing is upload
 
 **On your phone:** it is a web app, so it needs to be hosted somewhere (any static host works: Netlify, Vercel, GitHub Pages, a folder on your own server). Upload the `dist` folder after `npm run build`, open the address on the phone, and use "Add to Home Screen". Then export a backup on the computer and import it on the phone.
 
+**Put it online (so it's on your phone):** the repo includes a GitHub Pages workflow. Create a GitHub repository, push this folder to its `main` branch, and in the repository's Settings → Pages choose "GitHub Actions" as the source. Every push then builds and deploys to `https://<your-user>.github.io/<repo>/`. Open that on your phone and "Add to Home Screen". Your data stays on each device; use Export/Import or the automatic backup folder to move it.
+
+**Offline:** the installed app keeps its shell, map tiles you have seen, flags, and the last forecast. On a trip's Trail, **Save map for offline** stores the tiles around the destination ahead of time.
+
+**Automatic backup (Chrome or Edge on a computer):** Settings → Automatic backup → choose a folder, ideally one inside Dropbox, OneDrive, or Google Drive. TravelBud writes `TravelBud-backup.json` there about 15 seconds after any change, plus one dated copy per month.
+
 **For development:**
 
 ```bash

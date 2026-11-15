@@ -28,7 +28,7 @@ export function MiniMap({ points, route, height = 220 }: { points: MapPoint[]; r
   return (
     <div className="minimap" style={{ height }}>
       <MapContainer center={[20, 0]} zoom={2} zoomControl={false} scrollWheelZoom={false} dragging={false} doubleClickZoom={false} attributionControl={false} style={{ height: '100%' }}>
-        <TileLayer url="https://tile.openstreetmap.org/{z}/{x}/{y}.png" maxZoom={19} />
+        <TileLayer url="https://tile.openstreetmap.org/{z}/{x}/{y}.png" maxZoom={19} crossOrigin="anonymous" />
         <Fit points={points} />
         {route && points.length > 1 && <Polyline positions={points.map(p => [p.lat, p.lng] as [number, number])} pathOptions={{ color: '#15605d', weight: 3, dashArray: '6 8', opacity: 0.85 }} />}
         {points.map((p, i) => (

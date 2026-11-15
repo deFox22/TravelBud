@@ -1,10 +1,11 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { AppData, Theme } from '../lib/types'
 import { emptyData, normalize, useStore } from '../lib/store'
 import { Field, Modal } from '../components/ui'
 import { download, plural, todayISO } from '../lib/util'
 import { Fox } from '../components/Fox'
-import { Download, Upload } from 'lucide-react'
+import { Download, Upload, FolderCheck, FolderOpen } from 'lucide-react'
+import { backupPermission, chooseBackupFolder, forgetBackupFolder, getBackupFolder, requestBackupPermission, supportsFolderBackup, writeBackup } from '../lib/backup'
 
 export function Settings({ onClose }: { onClose: () => void }) {
   const { data, update, replace } = useStore()
@@ -43,6 +44,27 @@ export function Settings({ onClose }: { onClose: () => void }) {
   }
 
   const photoCount = data.memories.reduce((s, m) => s + m.photos.length, 0) + data.trips.filter(t => t.cover).length
+
+  const [folder, setFolder] = useState<{ name: string; perm: 'granted' | 'prompt' | 'denied' } | null>(null)
+  const refreshFolder = async () => {
+    const h = await getBackupFolder()
+    if (!h) return setFolder(null)
+    setFolder({ name: h.name, perm: await backupPermission(h) })
+  }
+  useEffect(() => {
+    void refreshFolder()
+  }, [])
+  const pickFolder = async () => {
+    try {
+      const h = await chooseBackupFolder()
+      await writeBackup(h, data)
+      update(d => ({ ...d, profile: { ...d.profile, lastBackup: todayISO() } }))
+      await refreshFolder()
+      setMsg(`Backing up to “${h.name}”. A first copy was written just now.`)
+    } catch {
+      /* cancelled */
+    }
+  }
 
   return (
     <Modal title="Settings & backup" onClose={onClose}>
@@ -86,6 +108,55 @@ export function Settings({ onClose }: { onClose: () => void }) {
         </div>
         {msg && <p className="small" style={{ color: 'var(--primary)' }}>{msg}</p>}
 
+        <div>
+          <h3 style={{ fontSize: 16, marginBottom: 4 }}>Automatic backup</h3>
+          {!supportsFolderBackup() ? (
+            <p className="muted small">Available in Chrome or Edge on a computer: pick a folder once (a cloud-synced one is ideal) and TravelBud keeps a backup file there up to date. On a phone, export a backup now and then.</p>
+          ) : folder ? (
+            <div className="pills">
+              <span className="pill green">
+                <FolderCheck size={13} /> {folder.name}
+              </span>
+              {folder.perm === 'prompt' && (
+                <button
+                  type="button"
+                  className="btn sm primary"
+                  onClick={async () => {
+                    const h = await getBackupFolder()
+                    if (h) await requestBackupPermission(h)
+                    await refreshFolder()
+                  }}
+                >
+                  Resume
+                </button>
+              )}
+              <button type="button" className="btn sm" onClick={pickFolder}>
+                Change folder
+              </button>
+              <button
+                type="button"
+                className="btn sm ghost"
+                onClick={async () => {
+                  await forgetBackupFolder()
+                  await refreshFolder()
+                }}
+              >
+                Stop
+              </button>
+              <span className="muted small" style={{ flexBasis: '100%' }}>
+                Writes TravelBud-backup.json about 15 seconds after any change, plus one dated copy per month. Last backup {data.profile.lastBackup ? fmtDateShort(data.profile.lastBackup) : 'never'}.
+              </span>
+            </div>
+          ) : (
+            <div className="pills">
+              <button type="button" className="btn" onClick={pickFolder}>
+                <FolderOpen size={15} /> Choose a backup folder
+              </button>
+              <span className="muted small">Pick a folder inside Dropbox, OneDrive, or Google Drive and the backup follows you.</span>
+            </div>
+          )}
+        </div>
+
         <div className="about">
           <Fox mood="happy" size={56} />
           <div>
@@ -107,3 +178,5 @@ export function Settings({ onClose }: { onClose: () => void }) {
     </Modal>
   )
 }
+
+const fmtDateShort = (iso: string) => new Date(iso + 'T00:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' })

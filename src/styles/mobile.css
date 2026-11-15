@@ -1,0 +1,129 @@
+/* ============================================================
+   Phone-first: capture button, feed order, bottom sheets, touch
+   ============================================================ */
+
+/* Floating capture button, everywhere. */
+.fab {
+  position: fixed; right: 18px; bottom: calc(86px + env(safe-area-inset-bottom)); z-index: 65;
+  width: 60px; height: 60px; border-radius: 50%; border: 0; cursor: pointer; color: #fff;
+  background: linear-gradient(145deg, var(--accent), #e58f68); display: grid; place-items: center;
+  box-shadow: 0 14px 30px -8px rgba(217, 115, 74, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.fab:hover { transform: translateY(-2px); box-shadow: 0 18px 34px -8px rgba(217, 115, 74, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.3); }
+.fab:active { transform: scale(0.94); }
+.fab svg { display: block; }
+.fab-label { position: fixed; right: 86px; bottom: calc(104px + env(safe-area-inset-bottom)); z-index: 65; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; pointer-events: none; opacity: 0; transition: opacity 0.15s; }
+.fab:hover + .fab-label { opacity: 1; }
+@media (min-width: 881px) {
+  .fab { right: 30px; bottom: 30px; }
+  .fab-label { right: 98px; bottom: 48px; }
+}
+
+/* Day strip under the trail: big tap targets for each day. */
+.trail-days { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 2px 2px 6px; -webkit-overflow-scrolling: touch; }
+.trail-days button { scroll-snap-align: center; flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 64px; padding: 8px 10px; border-radius: 14px; border: 1px solid var(--line); background: var(--surface-2); cursor: pointer; font: inherit; color: var(--ink); transition: transform 0.15s, border-color 0.15s; }
+.trail-days button .wd { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.trail-days button .dn { font-family: var(--font-display); font-size: 18px; font-weight: 600; line-height: 1.1; }
+.trail-days button .st { font-size: 11px; color: var(--muted); }
+.trail-days button.done .st { color: var(--primary); }
+.trail-days button.today { border-color: var(--accent); background: var(--accent-soft); }
+.trail-days button.on { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); transform: translateY(-2px); }
+
+/* Camera and library pickers in the memory form. */
+.photo-pick { display: flex; gap: 8px; flex-wrap: wrap; }
+.photo-pick label { flex: 1; min-width: 140px; }
+.photo-pick input { display: none; }
+
+/* Offline map button state. */
+.offline-ok { color: var(--green-ink); font-weight: 600; }
+
+/* Larger targets and always-visible controls on touch screens. */
+@media (hover: none) {
+  .icon-btn { width: 40px; height: 40px; }
+  .btn { padding: 11px 16px; }
+  .btn.sm { padding: 8px 12px; }
+  .check-item { padding: 11px 10px; }
+  .check-item .icon-btn, .place-item .actions, .gallery-nav { opacity: 1; }
+  .fab-label { display: none; }
+  input[type='text'], input[type='search'], input[type='date'], input[type='time'], input[type='number'], input[type='email'], input[type='tel'], input[type='password'], select, textarea { font-size: 16px; padding: 11px 12px; } /* 16px stops iOS zooming into fields */
+  .memory-card:hover, .trip-card:hover { transform: none; }
+}
+
+/* Phone layout: a single feed with the trip first. */
+@media (max-width: 880px) {
+  .content { padding-top: 16px; }
+  .page.home > .hero-greet { order: 0; }
+  .page.home > .fox-says { order: 1; }
+  .page.home > .tracker { order: 2; }
+  .page.home > .alerts { order: 3; }
+  .page.home > .welcome { order: 3; }
+  .page.home > .stat-row { order: 4; }
+  .page.home > .home-grid { order: 5; }
+  .hero-greet { align-items: flex-start; flex-direction: column; gap: 2px; }
+  .hero-greet h1 { font-size: 30px; }
+  .hero-date { order: -1; }
+  .fox-says { align-items: flex-start; }
+  .fox-bubble { padding: 12px 14px; font-size: 14px; }
+  .fox-actions .btn { flex: 1; }
+
+  /* Stats become a swipeable strip. */
+  .stat-row { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 10px; padding-bottom: 4px; margin: 0 -16px; padding-left: 16px; padding-right: 16px; }
+  .stat { flex: 0 0 140px; scroll-snap-align: start; padding: 14px 14px 12px; }
+  .stat .num { font-size: 30px; }
+
+  /* Tracker stacks and its actions fill the width. */
+  .tracker { padding: 16px; gap: 12px; border-radius: 16px; }
+  .tracker-head { flex-direction: column; align-items: stretch; gap: 8px; }
+  .tracker-head h2 { font-size: 24px; }
+  .tracker-status { font-size: 15px; text-align: center; white-space: normal; }
+  .tracker-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .tracker-actions .btn:first-child { grid-column: 1 / -1; }
+  .tracker-toast { grid-column: 1 / -1; text-align: center; }
+  .tracker-side { grid-template-columns: 1fr 1fr; }
+  .trail .wp-label { font-size: 15px; }
+  .tracker-today .pills .btn { flex: 1; }
+
+  /* Cards and grids. */
+  .card.pad { padding: 16px; }
+  .grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+  .quick-actions { grid-template-columns: 1fr 1fr; }
+  .welcome { grid-template-columns: 1fr; }
+  .throwback { grid-template-columns: 110px 1fr; }
+  .throwback img, .throwback-blank { min-height: 110px; }
+  .page-head { flex-direction: column; align-items: stretch; }
+  .page-actions .btn { flex: 1; }
+  .toolbar .seg { width: 100%; display: flex; }
+  .toolbar .seg button { flex: 1; }
+  .places-layout { height: auto; }
+  .places-layout .map-wrap { height: 52vh; }
+  .side-list { max-height: 50vh; }
+  .two-col { gap: 12px; }
+  .tabs button { padding: 10px 12px; }
+  .globe-big .globe-wrap { height: 320px !important; }
+}
+
+@media (max-width: 520px) {
+  .grid { grid-template-columns: 1fr; }
+  .tracker-side { grid-template-columns: 1fr; }
+  .tracker-forecast .wx { flex-basis: 52px; }
+}
+
+/* Dialogs become bottom sheets on small screens. */
+@media (max-width: 600px) {
+  .modal-backdrop { align-items: flex-end; padding: 0; }
+  .modal { max-width: none; max-height: 94vh; border-radius: 22px 22px 0 0; border-bottom: 0; animation: sheetUp 0.25s cubic-bezier(0.2, 0.8, 0.2, 1); }
+  .modal::before { content: ''; display: block; width: 42px; height: 4px; border-radius: 999px; background: var(--line-strong); margin: 10px auto 0; }
+  .modal-head { padding: 10px 18px 8px; }
+  .modal-head h2 { font-size: 20px; }
+  .modal-body { padding: 4px 18px 18px; }
+  .modal-foot { padding: 12px 18px calc(12px + env(safe-area-inset-bottom)); border-radius: 0; position: sticky; bottom: 0; }
+  .modal-foot .btn { flex: 1; }
+  .modal-foot .left { flex: 0 0 100%; margin: 0 0 4px; text-align: center; }
+  .wizard-steps { justify-content: center; }
+  .palette-backdrop { padding: 8px; align-items: flex-start; }
+  .palette { max-height: 88vh; }
+  .lightbox .gallery-nav { width: 44px; height: 44px; }
+  .story-huge { font-size: 110px; }
+}
+@keyframes sheetUp { from { transform: translateY(40px); opacity: 0; } }

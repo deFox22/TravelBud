@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react'
+import { useId, type CSSProperties } from 'react'
 
 export type FoxMood = 'happy' | 'sleepy' | 'excited' | 'wave' | 'think'
 
@@ -8,14 +8,18 @@ export type FoxMood = 'happy' | 'sleepy' | 'excited' | 'wave' | 'think'
  */
 export function Fox({ mood = 'happy', size = 64, className = '', style }: { mood?: FoxMood; size?: number; className?: string; style?: CSSProperties }) {
   const closed = mood === 'sleepy'
+  // Gradient ids must be unique per instance: a shared id can resolve to a fox hidden elsewhere on the page and render nothing.
+  const uid = useId().replace(/[^a-zA-Z0-9]/g, '')
+  const fur = `foxFur${uid}`
+  const scarf = `foxScarf${uid}`
   return (
     <svg className={`fox fox-${mood} ${className}`} width={size} height={size} viewBox="0 0 120 120" style={style} role="img" aria-label="Scout the fox">
       <defs>
-        <linearGradient id="foxFur" x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id={fur} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#f29a5c" />
           <stop offset="1" stopColor="#df7a43" />
         </linearGradient>
-        <linearGradient id="foxScarf" x1="0" y1="0" x2="1" y2="0">
+        <linearGradient id={scarf} x1="0" y1="0" x2="1" y2="0">
           <stop offset="0" stopColor="#15605d" />
           <stop offset="1" stopColor="#2b8f85" />
         </linearGradient>
@@ -53,16 +57,16 @@ export function Fox({ mood = 'happy', size = 64, className = '', style }: { mood
 
       {/* ears */}
       <g className="fox-ear fox-ear-l">
-        <path d="M30 46 L34 8 Q35 5 38 8 L60 36 Z" fill="url(#foxFur)" />
+        <path d="M30 46 L34 8 Q35 5 38 8 L60 36 Z" fill={`url(#${fur})`} />
         <path d="M37 38 L38 18 L52 36 Z" fill="#fde3d0" />
       </g>
       <g className="fox-ear fox-ear-r">
-        <path d="M90 46 L86 8 Q85 5 82 8 L60 36 Z" fill="url(#foxFur)" />
+        <path d="M90 46 L86 8 Q85 5 82 8 L60 36 Z" fill={`url(#${fur})`} />
         <path d="M83 38 L82 18 L68 36 Z" fill="#fde3d0" />
       </g>
 
       {/* head */}
-      <path d="M22 60 C22 38 38 30 60 30 C82 30 98 38 98 60 C98 82 82 96 60 96 C38 96 22 82 22 60 Z" fill="url(#foxFur)" />
+      <path d="M22 60 C22 38 38 30 60 30 C82 30 98 38 98 60 C98 82 82 96 60 96 C38 96 22 82 22 60 Z" fill={`url(#${fur})`} />
       {/* white muzzle / cheeks */}
       <path d="M32 66 C36 56 48 60 60 68 C72 60 84 56 88 66 C92 80 78 96 60 96 C42 96 28 80 32 66 Z" fill="#fff8ef" />
       {/* blush */}
@@ -95,14 +99,14 @@ export function Fox({ mood = 'happy', size = 64, className = '', style }: { mood
       )}
 
       {/* scarf */}
-      <path d="M26 92 C40 104 80 104 94 92 L92 102 C78 112 42 112 28 102 Z" fill="url(#foxScarf)" />
+      <path d="M26 92 C40 104 80 104 94 92 L92 102 C78 112 42 112 28 102 Z" fill={`url(#${scarf})`} />
       <path d="M72 100 L84 118 L92 108 L86 98 Z" fill="#2b8f85" />
       <path d="M74 103 L82 114" stroke="#fffcf7" strokeWidth="2" strokeLinecap="round" opacity="0.6" />
 
       {/* waving paw */}
       {mood === 'wave' && (
         <g className="fox-paw">
-          <ellipse cx="104" cy="78" rx="9" ry="11" fill="url(#foxFur)" />
+          <ellipse cx="104" cy="78" rx="9" ry="11" fill={`url(#${fur})`} />
           <circle cx="98" cy="70" r="3.2" fill="#fff8ef" />
           <circle cx="104" cy="68" r="3.2" fill="#fff8ef" />
           <circle cx="110" cy="70" r="3.2" fill="#fff8ef" />

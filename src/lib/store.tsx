@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import { get, set } from 'idb-keyval'
 import type { AppData, HomeGuide, Sitter, Trip } from './types'
+import { backupPermission, getBackupFolder, writeBackup } from './backup'
 
 const KEY = 'travelbud:data'
 
@@ -109,6 +110,27 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     const t = setTimeout(() => {
       set(KEY, data).catch(err => console.error('Could not save data', err))
     }, 250)
+    return () => clearTimeout(t)
+  }, [data])
+
+  // Folder backup, a little later, when a folder was chosen and the browser still allows it.
+  const dirty = useRef(false)
+  useEffect(() => {
+    if (!loaded.current) return
+    dirty.current = true
+    const t = setTimeout(async () => {
+      if (!dirty.current) return
+      const h = await getBackupFolder()
+      if (!h || (await backupPermission(h)) !== 'granted') return
+      try {
+        await writeBackup(h, data)
+        dirty.current = false
+        const today = new Date().toISOString().slice(0, 10)
+        if (data.profile.lastBackup !== today) setData(d => ({ ...d, profile: { ...d.profile, lastBackup: today } }))
+      } catch (err) {
+        console.warn('Folder backup failed', err)
+      }
+    }, 15_000)
     return () => clearTimeout(t)
   }, [data])
 
