@@ -3,7 +3,7 @@ import type { Page } from '../lib/types'
 import { useStore } from '../lib/store'
 import { CountUp, StatStrip } from '../components/ui'
 import { TripCard } from '../components/TripCard'
-import { Camera, Map as MapIcon, Plane, Compass, Backpack, CircleDollarSign, Award, Footprints, Share2 } from 'lucide-react'
+import { Camera, Map as MapIcon, Plane, Compass, Backpack, CircleDollarSign, Award, Footprints, Share2, NotebookPen, ShieldCheck } from 'lucide-react'
 import { FoxSays, type FoxAction } from '../components/Fox'
 import { backupDueAfterDays, backupPermission, getBackupFolder, requestBackupPermission, shareBackup, supportsFolderBackup } from '../lib/backup'
 
@@ -148,12 +148,12 @@ export function Home({ go }: { go: (p: Page, id?: string) => void }) {
           <div className="card pad">
             <h2>No trip on the horizon</h2>
             <p className="muted" style={{ margin: '6px 0 14px' }}>Even a far-off idea counts. Add a trip you are dreaming about and this spot will count down to it.</p>
-            <div className="pills">
+            <div className="btn-pair">
               <button type="button" className="btn primary" onClick={() => go('trips', 'new:plan')}>
                 <Plane size={15} /> Plan a trip
               </button>
               <button type="button" className="btn" onClick={() => go('trips', 'new:now')}>
-                <Compass size={15} /> I'm traveling now
+                <Compass size={15} /> On a trip
               </button>
             </div>
           </div>
@@ -181,7 +181,7 @@ export function Home({ go }: { go: (p: Page, id?: string) => void }) {
           <div className="mem-strip-row">
             {recent.map(m => (
               <button type="button" key={m.id} className="mem-tile" onClick={() => go('memories', m.id)}>
-                {m.photos[0] ? <img src={thumbOf(m.photos[0])} alt="" /> : <span className="mem-tile-blank">{m.title.slice(0, 1)}</span>}
+                {m.photos[0] ? <img src={thumbOf(m.photos[0])} alt="" /> : <span className="mem-tile-blank"><NotebookPen size={26} strokeWidth={1.6} /></span>}
                 <span className="mem-tile-cap">
                   <b>{m.title}</b>
                   <small>{fmtDate(m.date)}</small>
@@ -199,7 +199,7 @@ export function Home({ go }: { go: (p: Page, id?: string) => void }) {
       <div className="home-grid">
         {throwback && (
           <button type="button" className="card throwback" onClick={() => go('memories', throwback.id)}>
-            {throwback.photos[0] ? <img src={thumbOf(throwback.photos[0])} alt="" /> : <div className="throwback-blank">📝</div>}
+            {throwback.photos[0] ? <img src={thumbOf(throwback.photos[0])} alt="" /> : <div className="throwback-blank"><NotebookPen size={30} strokeWidth={1.6} /></div>}
             <div className="throwback-text">
               <span className="eyebrow">Take me back</span>
               <h2>{throwback.title}</h2>
@@ -290,16 +290,13 @@ function BackupReminder({ sinceDays }: { sinceDays: number | null }) {
   const [done, setDone] = useState('')
   const phone = !supportsFolderBackup()
   return (
-    <div className="card pad alerts backup-reminder">
-      <h3>{sinceDays === null ? 'No backup yet' : `Last backup ${plural(sinceDays, 'day')} ago`}</h3>
-      <p className="small" style={{ margin: '4px 0 10px' }}>
-        {phone
-          ? 'Everything lives only on this phone. Hand a copy to Files or iCloud Drive now and then; it takes two taps.'
-          : 'Everything lives only in this browser. Export a copy, or pick a backup folder in Settings and it stays current by itself.'}
-      </p>
-      {done ? (
-        <p className="small" style={{ color: 'var(--primary)' }}>{done}</p>
-      ) : (
+    <div className="card backup-banner">
+      <ShieldCheck size={22} />
+      <div className="backup-banner-text">
+        <b>{done ? 'Backed up' : sinceDays === null ? 'No backup yet' : `Last backup ${plural(sinceDays, 'day')} ago`}</b>
+        <span className="muted small">{done || (phone ? 'Everything lives only on this phone.' : 'Everything lives only in this browser.')}</span>
+      </div>
+      {!done && (
         <button
           type="button"
           className="btn primary sm"
@@ -307,10 +304,10 @@ function BackupReminder({ sinceDays }: { sinceDays: number | null }) {
             const how = await shareBackup(data)
             if (how === 'cancelled') return
             update(d => ({ ...d, profile: { ...d.profile, lastBackup: todayISO() } }))
-            setDone(how === 'shared' ? 'Saved through the share sheet. Scout will nudge you again in a week.' : 'Downloaded. Keep it in a cloud folder.')
+            setDone(how === 'shared' ? 'Saved through the share sheet.' : 'Downloaded. Keep it in a cloud folder.')
           }}
         >
-          <Share2 size={14} /> Back up now
+          <Share2 size={14} /> Back up
         </button>
       )}
     </div>

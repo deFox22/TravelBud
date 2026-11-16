@@ -431,3 +431,143 @@ button.home-tip { cursor: pointer; }
 
 .qr-box { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 14px; background: #fff; border-radius: var(--tb-radius-lg); box-shadow: var(--tb-shadow-card); align-self: center; }
 .qr-box img { width: min(100%, 360px); height: auto; image-rendering: pixelated; display: block; }
+
+/* ======================================================================
+   Phone cleanup round: one calm column, nothing clipped, nothing shouting.
+   ====================================================================== */
+
+/* Nothing may widen the page: a wide child used to push fixed sheets and the camera button off screen. */
+html, body { overflow-x: clip; }
+.app, .content { min-width: 0; max-width: 100%; }
+.content { overflow-x: clip; }
+
+/* two equal buttons side by side */
+.btn-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.btn-pair .btn { justify-content: center; min-width: 0; white-space: normal; text-align: center; line-height: 1.2; padding-left: 10px; padding-right: 10px; }
+.btn-pair .file-btn { width: 100%; }
+
+/* trip cards without a cover photo use the daylight ridge */
+.trip-card .no-cover.art { display: block; width: 100%; height: 150px; background: none; animation: none; font-size: 0; }
+.trip-card.past .no-cover.art { filter: saturate(0.8); }
+
+/* trip header: overflow menu instead of a wall of buttons */
+.more-wrap { position: relative; display: flex; }
+.more-btn { padding-left: 12px; padding-right: 12px; }
+.more-scrim { position: fixed; inset: 0; z-index: 40; }
+.more-pop { position: absolute; right: 0; top: calc(100% + 6px); z-index: 41; min-width: 200px; background: var(--surface); border-radius: var(--tb-radius-md); box-shadow: var(--tb-shadow-raised); padding: 6px; display: flex; flex-direction: column; animation: rise 0.18s; }
+.more-pop button { display: flex; align-items: center; gap: 10px; padding: 12px; border: 0; background: transparent; border-radius: var(--tb-radius-sm); font: inherit; font-weight: 600; color: var(--ink); cursor: pointer; text-align: left; }
+.more-pop button:hover { background: var(--tb-fill); }
+.more-pop button.danger { color: var(--danger); }
+
+/* itinerary rows: time is a small tag, text gets the width */
+.check-item .time { width: auto; flex: none; font-weight: 600; color: var(--tb-link); background: var(--tb-sky); padding: 2px 8px; border-radius: var(--tb-radius-pill); font-size: 12px; }
+.check-item .txt { min-width: 0; overflow-wrap: anywhere; }
+.check-item .icon-btn svg, .place-item .icon-btn svg, .day-head .icon-btn svg { display: block; }
+.day-head .icon-btn { margin-left: auto; }
+
+/* memories without a photo are notes, not empty Polaroids */
+.memory-card.note { transform: none; padding: 14px 16px 6px; border-radius: var(--tb-radius-lg); background: var(--surface); border-left: 4px solid var(--tb-primary); }
+.memory-card.note::before { display: none; }
+.memory-card.note:hover { transform: translateY(-3px); }
+.memory-card.note .body { padding: 6px 0 10px; color: var(--ink); }
+.memory-card.note .meta { color: var(--muted); }
+.memory-card.note .excerpt { display: -webkit-box; }
+.note-head { display: flex; align-items: center; gap: 8px; font: var(--tb-type-caption); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--tb-link); }
+:root[data-theme='dark'] .memory-card.note { background: var(--surface); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme='light']) .memory-card.note { background: var(--surface); } }
+.memory-body.short::first-letter { font-size: inherit; float: none; margin: 0; color: inherit; font-family: inherit; line-height: inherit; }
+.chip-over svg { vertical-align: -2px; }
+
+/* photo-less placeholders */
+.mem-tile-blank { color: var(--tb-link); }
+.throwback-blank { background: var(--tb-sky); color: var(--tb-link); font-size: 0; }
+
+/* quiet destructive action in sheets */
+.btn.icon-only { padding-left: 12px; padding-right: 12px; }
+.modal-foot .btn.icon-only.left { flex: 0 0 auto; margin: 0 auto 0 0; }
+
+/* backup banner: one row */
+.backup-banner { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: var(--tb-primary-tint); }
+.backup-banner > svg { color: var(--tb-number); flex: none; }
+.backup-banner-text { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.backup-banner-text b { color: var(--tb-number); font-size: 15px; }
+.backup-banner .btn { flex: none; }
+
+/* map legend icons */
+.legend-toggle { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; }
+.fav-toggle svg, .seg button svg { vertical-align: -2px; }
+.seg button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+
+@media (max-width: 880px) {
+  /* room for the last row to scroll clear of the camera button */
+  .content { padding-bottom: calc(172px + env(safe-area-inset-bottom)); }
+
+  /* Home order: trip, numbers, memories, then housekeeping */
+  .page.home > .backup-banner { order: 7; }
+  .page.home > .alerts { order: 7; }
+  .page.home > .home-grid { order: 6; }
+
+  /* stat strip: number over label, four even columns, never scrolls */
+  .stat-strip { height: auto; padding: 12px 4px; overflow: visible; align-items: stretch; }
+  .stat-strip > div { flex: 1 1 0; min-width: 0; flex-direction: column; align-items: center; gap: 0; padding: 0 4px; white-space: normal; text-align: center; }
+  .stat-strip .l { line-height: 14px; }
+
+  /* page header buttons share a row */
+  .page-head .page-actions { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 8px; }
+  .page-head .page-actions .btn { justify-content: center; min-width: 0; }
+
+  /* trip detail header: back link, then title, then three compact actions */
+  .trip-detail-head { flex-direction: column; align-items: stretch; gap: 10px; }
+  .trip-detail-head .back { align-self: flex-start; background: transparent; box-shadow: none; padding: 4px 6px 4px 0; color: var(--tb-link); min-height: 0; height: auto; }
+  .trip-detail-head h1 { font-size: 28px; line-height: 32px; }
+  .trip-detail-head .page-actions { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; }
+  .trip-detail-head .page-actions .btn { justify-content: center; }
+  .tabs { overflow-x: auto; scrollbar-width: none; flex-wrap: nowrap; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tabs button { flex: none; white-space: nowrap; }
+
+  /* itinerary: theme on its own line, the add row stacks */
+  .day-head { gap: 8px; align-items: center; }
+  .day-head input { order: 5; flex: 1 1 100%; min-width: 0; padding-left: 0; font-weight: 600; }
+  .day .add-row { flex-wrap: wrap; }
+  .day .add-row input[type='text'] { order: -1; flex: 1 1 100%; }
+  .day .add-row input[type='time'] { flex: 1 1 0; min-width: 0; }
+  .day .add-row .btn { flex: 0 0 auto; height: 44px; padding: 0 20px; }
+  .check-item { align-items: flex-start; gap: 12px; }
+  .check-item .txt { padding-top: 2px; }
+  .check-item .time { margin-top: 3px; }
+
+  /* forms inside cards: fields stack, buttons fill */
+  .card .form .row:has(.field), .card.form .row:has(.field) { flex-direction: column; align-items: stretch; gap: 10px; }
+  .card .form .row:has(.field) > *, .card.form .row:has(.field) > * { min-width: 0; width: 100%; }
+  .card .form .row:has(.field) > .btn, .card.form .row:has(.field) > .btn { height: 48px; flex: none !important; }
+  .form-actions, .card .form .pills { flex-wrap: wrap; }
+
+  /* memories toolbar: search on top, filters in one row */
+  .toolbar .search { flex: 1 1 100%; min-width: 0; }
+  .toolbar select { flex: 1 1 0; min-width: 0; width: auto; }
+  .toolbar > .btn span, .toolbar .seg button span { display: none; }
+  .toolbar > .btn { padding-left: 14px; padding-right: 14px; }
+  .toolbar .fav-toggle, .toolbar .btn { flex: none; }
+  .toolbar .seg { width: auto; flex: none; margin-left: auto; }
+  .toolbar .seg button { flex: none; padding: 9px 12px; }
+  .grid:has(.memory-card) { gap: 22px; }
+  .memory-card { transform: rotate(-1.2deg); }
+  .memory-card:nth-child(even) { transform: rotate(1deg); }
+  .memory-card.note, .memory-card.note:nth-child(even) { transform: none; }
+
+  /* map: legend sits under the map edge, clear of the zoom buttons; the desktop tip goes away */
+  .map-legend { top: auto; bottom: 26px; left: 8px; right: 8px; justify-content: center; flex-wrap: nowrap; gap: 8px; font-size: 11px; padding: 5px 8px; white-space: nowrap; }
+  .map-legend .legend-toggle { padding: 3px 8px; font-size: 11px; }
+  .map-legend i { margin-right: 3px; }
+  .map-hint { display: none; }
+  .places-layout .map-wrap { height: 46vh; }
+  .side-list { max-height: none; }
+
+  /* quick capture */
+  .qc-pick { grid-template-columns: 1fr 1fr; }
+  .qc-big { min-height: 88px; font-size: 15px; }
+
+  /* globe row keeps its text readable */
+  .globe-row { grid-template-columns: 1fr 120px; padding-left: 16px; }
+}

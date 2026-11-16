@@ -133,7 +133,7 @@ export function Settings({ onClose }: { onClose: () => void }) {
             Everything lives in this browser on this device: {plural(data.places.length, 'place')}, {plural(data.memories.length, 'memory', 'memories')}, {plural(data.trips.length, 'trip')}, {plural(data.sitters.length, 'sitter')}, and {plural(photoCount, 'photo')}. Nothing is uploaded anywhere. Export a backup now and then, and to move to another device.
           </p>
         </div>
-        <div className="row">
+        <div className="btn-pair">
           <button type="button" className="btn primary" onClick={() => exportJson(true)}>
             <Download size={15} /> Export backup
           </button>
@@ -141,7 +141,7 @@ export function Settings({ onClose }: { onClose: () => void }) {
             <FileText size={15} /> Words only
           </button>
           <button type="button" className="btn" onClick={sendToDevice} title="A link that carries everything except photos; open it on the other device">
-            <Smartphone size={15} /> Send to another device
+            <Smartphone size={15} /> Send to phone
           </button>
           <label className="btn file-btn" style={{ justifyContent: 'center' }}>
             <input ref={fileRef} type="file" accept="application/json,.json" onChange={e => importJson(e.target.files?.[0])} />

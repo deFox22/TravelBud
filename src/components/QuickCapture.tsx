@@ -136,7 +136,7 @@ export function QuickCapture({ tripId, onClose, onOpen }: { tripId?: string; onC
         )}
         {busy && <p className="muted small">{busy}</p>}
         {skipped > 0 && <p className="muted small">{plural(skipped, 'photo')} skipped: this browser cannot read that format (HEIC, usually). Export as JPEG and try again.</p>}
-        <input className="qc-line" value={line} onChange={e => setLine(e.target.value)} placeholder="One line about it (optional)" maxLength={120} autoFocus={!touchDevice} />
+        <input className="qc-line" type="text" value={line} onChange={e => setLine(e.target.value)} placeholder="One line about it (optional)" maxLength={120} autoFocus={!touchDevice} />
         <div className="qc-context">
           <Fox mood="happy" variant="head" size={34} />
           <span className="muted small">{context ? `Filed under ${context}.` : 'Date and place fill in from the photo.'}</span>

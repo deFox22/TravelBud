@@ -3,7 +3,7 @@ import type { Memory, Photo, Place, Trip } from '../lib/types'
 import { useStore } from '../lib/store'
 import { Empty, Field, Flag, Modal, PageHeader, Pill, TagInput } from '../components/ui'
 import { Slideshow } from '../components/Slideshow'
-import { Plus, Play, Camera, Images } from 'lucide-react'
+import { Plus, Play, Camera, Images, Star, LayoutGrid, List, Trash2, NotebookPen } from 'lucide-react'
 
 const touchDevice = typeof window !== 'undefined' && window.matchMedia('(hover: none)').matches
 import { fmtDate, isHeic, makePhoto, plural, readExif, reverseGeocode, thumbOf, todayISO, uid } from '../lib/util'
@@ -82,20 +82,20 @@ export function Memories({ focusId, clearFocus }: { focusId: string | null; clea
               ))}
             </select>
           )}
-          <button type="button" className={'btn' + (favOnly ? ' primary' : '')} onClick={() => setFavOnly(v => !v)}>
-            ★ Favorites
+          <button type="button" className={'btn fav-toggle' + (favOnly ? ' primary' : '')} aria-pressed={favOnly} onClick={() => setFavOnly(v => !v)}>
+            <Star size={15} fill={favOnly ? 'currentColor' : 'none'} /> <span>Favorites</span>
           </button>
           {list.some(m => m.photos.length) && (
-            <button type="button" className="btn" onClick={() => setPlaying(true)} title="Play the photos in view as a slideshow">
-              <Play size={14} /> Slideshow
+            <button type="button" className="btn" onClick={() => setPlaying(true)} aria-label="Slideshow" title="Play the photos in view as a slideshow">
+              <Play size={14} /> <span>Slideshow</span>
             </button>
           )}
           <div className="seg">
             <button type="button" className={view === 'grid' ? 'active' : ''} onClick={() => setView('grid')}>
-              ▦ Grid
+              <LayoutGrid size={15} /> <span>Grid</span>
             </button>
             <button type="button" className={view === 'timeline' ? 'active' : ''} onClick={() => setView('timeline')}>
-              ☰ Timeline
+              <List size={15} /> <span>Timeline</span>
             </button>
           </div>
         </div>
@@ -119,12 +119,22 @@ export function Memories({ focusId, clearFocus }: { focusId: string | null; clea
       ) : (
         <div className="grid">
           {list.map(m => (
-            <button type="button" key={m.id} className="card memory-card" onClick={() => setViewingId(m.id)}>
-              <div className="cover-wrap">
-                {m.photos[0] ? <img className="cover" src={thumbOf(m.photos[0])} alt="" loading="lazy" /> : <div className="no-cover">📝</div>}
-                <span className="chip-over">{fmtDate(m.date, { year: undefined })}</span>
-                {m.photos.length > 1 && <span className="chip-over br dark">{m.photos.length} 📷</span>}
-              </div>
+            <button type="button" key={m.id} className={'card memory-card' + (m.photos[0] ? '' : ' note')} onClick={() => setViewingId(m.id)}>
+              {m.photos[0] ? (
+                <div className="cover-wrap">
+                  <img className="cover" src={thumbOf(m.photos[0])} alt="" loading="lazy" />
+                  <span className="chip-over">{fmtDate(m.date, { year: undefined })}</span>
+                  {m.photos.length > 1 && (
+                    <span className="chip-over br dark">
+                      {m.photos.length} <Images size={12} />
+                    </span>
+                  )}
+                </div>
+              ) : (
+                <div className="note-head">
+                  <NotebookPen size={16} /> {fmtDate(m.date, { year: undefined })}
+                </div>
+              )}
               {m.favorite && <span className="fav">★</span>}
               <div className="body">
                 <h3>{m.title}</h3>
@@ -417,11 +427,11 @@ function MemoryView({
       onClose={onClose}
       footer={
         <>
-          <button type="button" className="btn danger left" onClick={onDelete}>
-            Delete
+          <button type="button" className="btn danger icon-only left" aria-label="Delete memory" title="Delete" onClick={onDelete}>
+            <Trash2 size={17} />
           </button>
           <button type="button" className="btn" onClick={onFav}>
-            {m.favorite ? '★ Favorited' : '☆ Favorite'}
+            <Star size={15} fill={m.favorite ? 'currentColor' : 'none'} /> {m.favorite ? 'Favorited' : 'Favorite'}
           </button>
           <button type="button" className="btn primary" onClick={onEdit}>
             Edit
@@ -478,7 +488,7 @@ function MemoryView({
           )}
         </div>
       )}
-      {m.body && <p className="memory-body">{m.body}</p>}
+      {m.body && <p className={'memory-body' + (m.body.length < 160 ? ' short' : '')}>{m.body}</p>}
       {!m.body && !photo && (
         <p className="muted" style={{ marginTop: 14 }}>
           No notes or photos yet. Hit Edit to add some.

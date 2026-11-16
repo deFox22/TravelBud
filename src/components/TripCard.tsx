@@ -21,13 +21,7 @@ export function TripCard({ trip, go }: { trip: Trip; go: (p: Page, id?: string) 
       {trip.cover ? (
         <img className="tch-cover" src={trip.cover} alt="" />
       ) : (
-        <svg className="tch-art" viewBox="0 0 400 130" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
-          <rect width="400" height="130" fill="var(--tb-sky)" />
-          <circle cx="330" cy="38" r="18" fill="var(--tb-sun)" />
-          <path d="M0 110 L90 48 L150 88 L220 30 L290 86 L350 62 L400 92 L400 130 L0 130 Z" fill="var(--tb-sage)" />
-          <path d="M0 120 L60 92 L130 112 L200 80 L270 110 L340 90 L400 108 L400 130 L0 130 Z" fill="var(--tb-forest-2)" />
-          <path d="M214 36 L220 30 L226 36 Z" fill="#fff" />
-        </svg>
+        <TrailArt className="tch-art" />
       )}
       <StatusChip status={trip.status} className="tch-chip" />
       <div className="tch-body">
@@ -47,6 +41,20 @@ export function TripCard({ trip, go }: { trip: Trip; go: (p: Page, id?: string) 
         </div>
       </div>
     </section>
+  )
+}
+
+/** The kit's daylight ridge, used wherever a trip has no cover photo. */
+export function TrailArt({ className = '', tone = 'day' }: { className?: string; tone?: 'day' | 'dusk' | 'dream' }) {
+  const sky = tone === 'dusk' ? 'var(--tb-primary-tint)' : 'var(--tb-sky)'
+  return (
+    <svg className={className} viewBox="0 0 400 130" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+      <rect width="400" height="130" fill={sky} />
+      <circle cx="330" cy={tone === 'dusk' ? 70 : 38} r="18" fill="var(--tb-sun)" opacity={tone === 'dream' ? 0.6 : 1} />
+      <path d="M0 110 L90 48 L150 88 L220 30 L290 86 L350 62 L400 92 L400 130 L0 130 Z" fill="var(--tb-sage)" />
+      <path d="M0 120 L60 92 L130 112 L200 80 L270 110 L340 90 L400 108 L400 130 L0 130 Z" fill="var(--tb-forest-2)" />
+      <path d="M214 36 L220 30 L226 36 Z" fill="#fff" />
+    </svg>
   )
 }
 

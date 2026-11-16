@@ -8,7 +8,8 @@ import { shareUrl } from '../lib/share'
 import { Tracker } from '../components/Tracker'
 import { TripWizard, type WizardMode } from '../components/TripWizard'
 import { EXPENSE_CATS, PACK_TEMPLATES } from '../lib/templates'
-import { Plus, Share2, Printer, Play, ArrowLeft, Pencil, Trash2, Compass, ExternalLink, MapPin, Wifi, KeyRound, Images } from 'lucide-react'
+import { Plus, Share2, Printer, Play, ArrowLeft, Pencil, Trash2, Compass, ExternalLink, MapPin, Wifi, KeyRound, Images, Ellipsis, X } from 'lucide-react'
+import { TrailArt } from '../components/TripCard'
 
 const party = () =>
   confetti({ particleCount: 160, spread: 75, startVelocity: 38, origin: { y: 0.65 }, colors: ['#15605d', '#2b8f85', '#d9734a', '#d9a441', '#fffcf7'] })
@@ -79,7 +80,7 @@ export function Trips({ focusId, clearFocus, go }: { focusId: string | null; cle
           <>
             {!data.trips.some(t => t.status !== 'completed' && t.startDate && t.endDate && t.startDate <= today && t.endDate >= today) && (
               <button type="button" className="btn" onClick={() => setWizard('now')}>
-                <Compass size={16} /> I'm traveling now
+                <Compass size={16} /> Traveling now
               </button>
             )}
             <button type="button" className="btn primary" onClick={() => setWizard('plan')}>
@@ -145,7 +146,7 @@ function TripGroup({ title, trips, onOpen, variant, coverFor }: { title: string;
           return (
             <button type="button" key={t.id} className={'card trip-card ' + (variant ?? '')} onClick={() => onOpen(t.id)}>
               <div className="cover-wrap">
-                {coverSrc ? <img className="cover" src={coverSrc} alt="" /> : <div className="no-cover">{variant === 'dream' ? '💭' : variant === 'past' ? '🏁' : '✈️'}</div>}
+                {coverSrc ? <img className="cover" src={coverSrc} alt="" /> : <TrailArt className="no-cover art" tone={variant === 'dream' ? 'dream' : variant === 'past' ? 'dusk' : 'day'} />}
                 <span className="chip-over">{label}</span>
                 {variant !== 'past' && d !== null && d >= 0 && <span className="chip-over br dark">{d === 0 ? 'Today!' : `${d}d`}</span>}
               </div>
@@ -297,6 +298,7 @@ function TripDetail({ trip, onBack, go }: { trip: Trip; onBack: () => void; go: 
   const [handoff, setHandoff] = useState(false)
   const [printing, setPrinting] = useState(false)
   const [sharing, setSharing] = useState(false)
+  const [more, setMore] = useState(false)
   const [copied, setCopied] = useState(false)
   const album = albumOf(trip, data.memories)
   const linkedPlaces = trip.placeIds.map(id => data.places.find(p => p.id === id)).filter((p): p is NonNullable<typeof p> => Boolean(p))
@@ -329,7 +331,7 @@ function TripDetail({ trip, onBack, go }: { trip: Trip; onBack: () => void; go: 
     <div className="page">
       <div className="trip-detail-head">
         <button type="button" className="btn back" onClick={onBack}>
-          <ArrowLeft size={16} /> Trips
+          <ArrowLeft size={16} /> Trail
         </button>
         <div style={{ flex: 1, minWidth: 200 }}>
           <div className="pills" style={{ gap: 10 }}>
@@ -346,15 +348,42 @@ function TripDetail({ trip, onBack, go }: { trip: Trip; onBack: () => void; go: 
           <button type="button" className="btn" onClick={() => setSharing(true)}>
             <Share2 size={15} /> Share
           </button>
-          <button type="button" className="btn" onClick={() => setPrinting(true)}>
-            <Printer size={15} /> Print
-          </button>
           <button type="button" className="btn" onClick={() => setEditing(true)}>
             <Pencil size={15} /> Edit
           </button>
-          <button type="button" className="btn danger" onClick={remove}>
-            <Trash2 size={15} /> Delete
-          </button>
+          <div className="more-wrap">
+            <button type="button" className="btn more-btn" aria-label="More actions" aria-expanded={more} onClick={() => setMore(v => !v)}>
+              <Ellipsis size={18} />
+            </button>
+            {more && (
+              <>
+                <div className="more-scrim" onClick={() => setMore(false)} />
+                <div className="more-pop" role="menu">
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      setMore(false)
+                      setPrinting(true)
+                    }}
+                  >
+                    <Printer size={16} /> Print itinerary
+                  </button>
+                  <button
+                    type="button"
+                    role="menuitem"
+                    className="danger"
+                    onClick={() => {
+                      setMore(false)
+                      remove()
+                    }}
+                  >
+                    <Trash2 size={16} /> Delete trip
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
@@ -651,17 +680,17 @@ function Itinerary({ trip, patch }: SectionProps) {
             </span>
             <input type="text" value={day.title} onChange={e => updateDay(day.id, { title: e.target.value })} placeholder="Theme for the day…" />
             <button type="button" className="icon-btn danger" aria-label="Remove day" onClick={() => removeDay(day.id)}>
-              🗑
+              <Trash2 size={16} />
             </button>
           </div>
           <div className="checklist">
             {day.items.map(it => (
               <div className={'check-item' + (it.done ? ' done' : '')} key={it.id}>
                 <input type="checkbox" checked={it.done} onChange={e => updateDay(day.id, { items: day.items.map(x => (x.id === it.id ? { ...x, done: e.target.checked } : x)) })} />
-                <span className="time">{it.time}</span>
+                {it.time && <span className="time">{it.time}</span>}
                 <span className="txt">{it.text}</span>
                 <button type="button" className="icon-btn danger" aria-label="Remove" onClick={() => updateDay(day.id, { items: day.items.filter(x => x.id !== it.id) })}>
-                  ✕
+                  <X size={16} />
                 </button>
               </div>
             ))}
@@ -673,7 +702,7 @@ function Itinerary({ trip, patch }: SectionProps) {
               value={drafts[day.id]?.text ?? ''}
               onChange={e => setDrafts(x => ({ ...x, [day.id]: { time: x[day.id]?.time ?? '', text: e.target.value } }))}
               onKeyDown={e => e.key === 'Enter' && addItem(day)}
-              placeholder="Add a plan — museum, dinner reservation, train to…"
+              placeholder="Add a plan: museum, dinner, train to…"
             />
             <button type="button" className="btn sm" onClick={() => addItem(day)} disabled={!drafts[day.id]?.text.trim()}>
               Add
@@ -777,7 +806,7 @@ function Packing({ trip, patch }: SectionProps) {
 function Bookings({ trip, patch }: SectionProps) {
   const blank = (): Booking => ({ id: uid(), kind: 'flight', title: '', confirmation: '', date: trip.startDate || '', notes: '' })
   const [b, setB] = useState<Booking>(blank)
-  const [open, setOpen] = useState(trip.bookings.length === 0)
+  const [open, setOpen] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const isStay = b.kind === 'stay'
@@ -818,7 +847,7 @@ function Bookings({ trip, patch }: SectionProps) {
 
   return (
     <div className="page" style={{ gap: 12 }}>
-      {trip.bookings.length === 0 && !open && <Empty icon="🎟️" title="No bookings logged" />}
+      {trip.bookings.length === 0 && !open && <p className="muted small">Nothing logged yet. Add the flight, the stay, or tickets and their confirmation numbers live here.</p>}
       {trip.bookings.map(bk => (
         <div className={'card booking' + (bk.kind === 'stay' ? ' stay' : '')} key={bk.id}>
           <span className="ico">{BOOKING_ICON[bk.kind]}</span>

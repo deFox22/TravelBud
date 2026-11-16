@@ -6,7 +6,7 @@ import { useStore } from '../lib/store'
 import { announceStamp } from '../lib/events'
 import { Empty, Field, Flag, Modal, PageHeader, Pill, Stars } from '../components/ui'
 import { fmtDate, geocode, plural, reverseGeocode, thumbOf, todayISO, uid, type GeoResult } from '../lib/util'
-import { Plus } from 'lucide-react'
+import { Plus, Pencil, Trash2, Camera, Route } from 'lucide-react'
 
 const BASE = import.meta.env.BASE_URL
 /** B16-D: visited = ember dot, wishlist = white dot with a teal ring, selected = ember teardrop with Scout. 44 px hit areas. */
@@ -63,6 +63,7 @@ export function Places({ focusId, clearFocus, go }: { focusId: string | null; cl
     const out: { m: Memory; lat: number; lng: number }[] = []
     const seen = new Map<string, number>()
     for (const m of data.memories) {
+      if (!m.photos[0]) continue
       let lat = m.lat
       let lng = m.lng
       if (lat === undefined || lng === undefined) {
@@ -184,7 +185,7 @@ export function Places({ focusId, clearFocus, go }: { focusId: string | null; cl
                   </b>
                   <div className="muted small">{p.country}</div>
                   <div className="small" style={{ marginTop: 4 }}>
-                    {p.status === 'visited' ? '✅ Visited' : '💭 Wishlist'}
+                    {p.status === 'visited' ? 'Visited' : 'Wishlist'}
                     {p.rating > 0 && ` · ${'★'.repeat(p.rating)}`}
                     {memoriesAt(p.id) > 0 && ` · ${plural(memoriesAt(p.id), 'memory', 'memories')}`}
                   </div>
@@ -213,12 +214,12 @@ export function Places({ focusId, clearFocus, go }: { focusId: string | null; cl
               </span>
               {memoryPins.length > 0 && (
                 <button type="button" className={'legend-toggle' + (showMemories ? ' on' : '')} onClick={() => setShowMemories(v => !v)}>
-                  📸 Memories
+                  <Camera size={13} /> Memories
                 </button>
               )}
               {routes.length > 0 && (
                 <button type="button" className={'legend-toggle' + (showRoutes ? ' on' : '')} onClick={() => setShowRoutes(v => !v)}>
-                  ✈️ Routes
+                  <Route size={13} /> Routes
                 </button>
               )}
             </div>
@@ -229,7 +230,7 @@ export function Places({ focusId, clearFocus, go }: { focusId: string | null; cl
           <div className="seg" style={{ alignSelf: 'stretch', display: 'flex' }}>
             {(['all', 'visited', 'wishlist'] as const).map(f => (
               <button type="button" key={f} className={filter === f ? 'active' : ''} style={{ flex: 1 }} onClick={() => setFilter(f)}>
-                {f === 'all' ? 'All' : f === 'visited' ? '✅ Visited' : '💭 Wishlist'}
+                {f === 'all' ? 'All' : f === 'visited' ? 'Visited' : 'Wishlist'}
               </button>
             ))}
           </div>
@@ -264,7 +265,7 @@ export function Places({ focusId, clearFocus, go }: { focusId: string | null; cl
                         setDraft(p)
                       }}
                     >
-                      ✎
+                      <Pencil size={16} />
                     </button>
                     <button
                       type="button"
@@ -275,7 +276,7 @@ export function Places({ focusId, clearFocus, go }: { focusId: string | null; cl
                         removePlace(p.id)
                       }}
                     >
-                      🗑
+                      <Trash2 size={16} />
                     </button>
                   </div>
                 </div>
@@ -424,10 +425,10 @@ function PlaceForm({ draft, onClose, onSave }: { draft: Draft; onClose: () => vo
         <Field label="Status">
           <div className="radio-group">
             <label className={d.status === 'visited' ? 'on' : ''}>
-              <input type="radio" name="status" checked={d.status === 'visited'} onChange={() => patch({ status: 'visited' })} />✅ Been there
+              <input type="radio" name="status" checked={d.status === 'visited'} onChange={() => patch({ status: 'visited' })} />Been there
             </label>
             <label className={d.status === 'wishlist' ? 'on' : ''}>
-              <input type="radio" name="status" checked={d.status === 'wishlist'} onChange={() => patch({ status: 'wishlist' })} />💭 Want to go
+              <input type="radio" name="status" checked={d.status === 'wishlist'} onChange={() => patch({ status: 'wishlist' })} />Want to go
             </label>
           </div>
         </Field>
@@ -445,7 +446,7 @@ function PlaceForm({ draft, onClose, onSave }: { draft: Draft; onClose: () => vo
           <textarea rows={3} value={d.notes} onChange={e => patch({ notes: e.target.value })} placeholder={d.status === 'visited' ? 'Favorite spot, what to skip, where to eat…' : 'Why it is on the list, best season, who recommended it…'} />
         </Field>
         <p className="muted small">
-          📍 {d.lat.toFixed(4)}, {d.lng.toFixed(4)}
+          {d.lat.toFixed(4)}, {d.lng.toFixed(4)}
           {d.firstVisited ? ` · first visited ${fmtDate(d.firstVisited)}` : ''}
         </p>
       </div>
