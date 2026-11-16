@@ -29,30 +29,51 @@ export function TripWizard({ mode: initialMode = 'plan', onClose, onCreated }: {
   const [makeDays, setMakeDays] = useState(true)
   const [lists, setLists] = useState<Record<string, boolean>>({ Essentials: true })
   const [budget, setBudget] = useState('')
-  const dirty = Boolean(title || destination || picked)
+  const dirty = Boolean(title || destination || picked || q)
 
   const search = async () => {
     if (!q.trim()) return
     setBusy(true)
     setErr('')
     try {
-      const r = await geocode(q.trim())
+      const all = await geocode(q.trim())
+      // The lookup often returns the same spot twice (once with a postcode): keep one of each.
+      const seen = new Set<string>()
+      const r = all.filter(g => {
+        const k = `${g.countryCode}|` + g.display.split(', ').filter(x => !/^\d[\d -]*$/.test(x)).join(', ')
+        if (seen.has(k)) return false
+        seen.add(k)
+        return true
+      })
       setResults(r)
-      if (r.length === 0) setErr('Nothing found. Try adding the state or country.')
+      if (r.length === 0) setErr(`No match for “${q.trim()}”. Tap Next to use it as typed, or add the state or country and try again.`)
     } catch {
-      setErr('Search needs an internet connection. You can skip this and link a place later.')
+      setResults([])
+      setErr('Could not look that up without a connection. Tap Next to carry on; you can link a place later.')
     } finally {
       setBusy(false)
     }
   }
 
+  /** One field does it all: picking a match fills the name and destination and moves on. */
   const pick = (g: GeoResult | Place) => {
     setPicked(g)
-    const label = [g.name, g.country].filter(Boolean).join(', ')
-    if (!destination) setDestination(label)
-    if (!title) setTitle(g.name)
+    setDestination([g.name, g.country].filter(Boolean).join(', '))
+    setTitle(t => t || g.name)
     setResults(null)
+    setErr('')
     setQ('')
+    setStep(1)
+  }
+
+  const next = async () => {
+    if (step === 0 && !picked && q.trim()) {
+      // First tap looks the place up; a second tap carries on with the text as typed.
+      if (results === null) return search()
+      setDestination(q.trim())
+      setTitle(t => t || q.trim())
+    }
+    setStep(s => s + 1)
   }
 
   const setModeAndDates = (m: WizardMode) => {
@@ -64,7 +85,7 @@ export function TripWizard({ mode: initialMode = 'plan', onClose, onCreated }: {
   }
 
   const nights = start && end ? Math.max(0, daysBetween(start, end)) : 0
-  const canNext = step === 0 ? Boolean(title.trim() || destination.trim()) : step === 1 ? mode === 'dream' || (Boolean(start && end) && end >= start) : true
+  const canNext = step === 0 ? Boolean(picked || q.trim()) && !busy : step === 1 ? mode === 'dream' || (Boolean(start && end) && end >= start) : true
 
   const create = () => {
     const tripId = uid()
@@ -97,7 +118,7 @@ export function TripWizard({ mode: initialMode = 'plan', onClose, onCreated }: {
       }
       const hasDates = mode !== 'dream' && start && end
       const days: ItineraryDay[] = hasDates && makeDays ? Array.from({ length: daysBetween(start, end) + 1 }, (_, i) => ({ id: uid(), date: addDays(start, i), title: '', items: [] })) : []
-      const packing = Object.entries(lists)
+      const packing = Object.entries(mode === 'now' ? {} : lists)
         .filter(([, on]) => on)
         .flatMap(([name]) => PACK_TEMPLATES[name] ?? [])
         .map(text => ({ id: uid(), text, packed: false }))
@@ -129,7 +150,7 @@ export function TripWizard({ mode: initialMode = 'plan', onClose, onCreated }: {
       title={
         <span className="wizard-title">
           <Fox mood={step === 2 ? 'excited' : 'happy'} size={36} />
-          {mode === 'now' ? "You're traveling. Let's catch up." : mode === 'dream' ? 'Dream up a trip' : 'Plan a trip'}
+          {mode === 'now' ? 'Catch up on your trip' : mode === 'dream' ? 'Dream up a trip' : 'Plan a trip'}
         </span>
       }
       onClose={onClose}
@@ -149,8 +170,8 @@ export function TripWizard({ mode: initialMode = 'plan', onClose, onCreated }: {
             </button>
           )}
           {step < 2 ? (
-            <button type="button" className="btn primary" disabled={!canNext} onClick={() => setStep(s => s + 1)}>
-              Next <ArrowRight size={15} />
+            <button type="button" className="btn primary" disabled={!canNext} onClick={() => void next()}>
+              {busy ? 'Looking…' : 'Next'} <ArrowRight size={15} />
             </button>
           ) : (
             <button type="button" className="btn primary" onClick={create}>
@@ -162,36 +183,60 @@ export function TripWizard({ mode: initialMode = 'plan', onClose, onCreated }: {
     >
       {step === 0 && (
         <div className="form">
-          <Field label="Where are you going?" hint="Pick a place so the trail gets a forecast and the map draws the route.">
-            <div className="search-row">
-              <input type="search" autoFocus value={q} onChange={e => setQ(e.target.value)} onKeyDown={e => e.key === 'Enter' && search()} placeholder="Mount Hood, Lisbon, Banff…" />
-              <button type="button" className="btn primary" onClick={search} disabled={busy || !q.trim()}>
-                <Search size={15} /> {busy ? '…' : 'Search'}
-              </button>
-            </div>
+          <Field label={mode === 'now' ? 'Where are you?' : 'Where are you going?'} hint={picked || results ? undefined : 'Type a place and tap Next. Scout looks it up so the map and the forecast work.'}>
+            {picked ? (
+              <div className="wizard-picked">
+                <MapPin size={16} />
+                <Flag cc={picked.countryCode} />
+                <span className="wizard-picked-name">
+                  <b>{picked.name}</b>
+                  {picked.country ? <span className="muted">, {picked.country}</span> : null}
+                </span>
+                <button
+                  type="button"
+                  className="btn sm ghost"
+                  onClick={() => {
+                    setPicked(null)
+                    setDestination('')
+                  }}
+                >
+                  Change
+                </button>
+              </div>
+            ) : (
+              <div className="search-row">
+                <Search size={18} className="search-row-ico" />
+                <input
+                  type="search"
+                  autoFocus
+                  enterKeyHint="search"
+                  value={q}
+                  onChange={e => {
+                    setQ(e.target.value)
+                    setResults(null)
+                    setErr('')
+                  }}
+                  onKeyDown={e => e.key === 'Enter' && void next()}
+                  placeholder="Mount Hood, Lisbon, Banff…"
+                />
+              </div>
+            )}
           </Field>
           {err && <p className="muted small">{err}</p>}
           {results && results.length > 0 && (
-            <div className="geo-results">
-              {results.map((g, i) => (
-                <button type="button" key={i} onClick={() => pick(g)}>
-                  <Flag cc={g.countryCode} /> <b>{g.name}</b>
-                  <span className="d">{g.display}</span>
-                </button>
-              ))}
-            </div>
+            <>
+              <p className="muted small">Pick the one you mean. Or tap Next to carry on with “{q.trim()}” as typed.</p>
+              <div className="geo-results">
+                {results.map((g, i) => (
+                  <button type="button" key={i} onClick={() => pick(g)}>
+                    <Flag cc={g.countryCode} /> <b>{g.name}</b>
+                    <span className="d">{g.display}</span>
+                  </button>
+                ))}
+              </div>
+            </>
           )}
-          {picked && (
-            <div className="wizard-picked">
-              <MapPin size={16} />
-              <Flag cc={picked.countryCode} /> <b>{picked.name}</b>
-              {picked.country ? <span className="muted">, {picked.country}</span> : null}
-              <button type="button" className="btn sm ghost" onClick={() => setPicked(null)}>
-                change
-              </button>
-            </div>
-          )}
-          {!picked && data.places.length > 0 && (
+          {!picked && !results && data.places.length > 0 && (
             <Field label="Or one of your places">
               <div className="pills">
                 {data.places.slice(0, 12).map(p => (
@@ -202,14 +247,6 @@ export function TripWizard({ mode: initialMode = 'plan', onClose, onCreated }: {
               </div>
             </Field>
           )}
-          <div className="row">
-            <Field label="Trip name" grow>
-              <input type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder={picked ? `${picked.name} trip` : 'Two weeks in Portugal'} />
-            </Field>
-            <Field label="Destination (as you'd say it)" grow>
-              <input type="text" value={destination} onChange={e => setDestination(e.target.value)} placeholder="Lisbon, Portugal" />
-            </Field>
-          </div>
         </div>
       )}
 
@@ -273,22 +310,27 @@ export function TripWizard({ mode: initialMode = 'plan', onClose, onCreated }: {
 
       {step === 2 && (
         <div className="form">
+          <Field label="Trip name">
+            <input type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder={destination || 'Two weeks in Portugal'} />
+          </Field>
           {mode !== 'dream' && (
             <label className="check">
               <input type="checkbox" checked={makeDays} onChange={e => setMakeDays(e.target.checked)} />
               Make a day for each date ({plural(nights + 1, 'day')}) so I can fill in plans
             </label>
           )}
-          <Field label="Start the packing list with">
-            <div className="radio-group">
-              {Object.keys(PACK_TEMPLATES).map(name => (
-                <label key={name} className={lists[name] ? 'on' : ''}>
-                  <input type="checkbox" checked={Boolean(lists[name])} onChange={e => setLists(l => ({ ...l, [name]: e.target.checked }))} />
-                  {name}
-                </label>
-              ))}
-            </div>
-          </Field>
+          {mode !== 'now' && (
+            <Field label="Start the packing list with">
+              <div className="radio-group">
+                {Object.keys(PACK_TEMPLATES).map(name => (
+                  <label key={name} className={lists[name] ? 'on' : ''}>
+                    <input type="checkbox" checked={Boolean(lists[name])} onChange={e => setLists(l => ({ ...l, [name]: e.target.checked }))} />
+                    {name}
+                  </label>
+                ))}
+              </div>
+            </Field>
+          )}
           <Field label="Budget (optional)">
             <input type="number" min={0} value={budget} onChange={e => setBudget(e.target.value)} placeholder="0" style={{ maxWidth: 200 }} />
           </Field>

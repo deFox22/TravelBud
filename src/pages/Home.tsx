@@ -11,6 +11,7 @@ const WorldGlobe = lazy(() => import('../components/Globe'))
 import { DOC_KINDS, docStatus } from './Wallet'
 import { addDays, daysBetween, daysUntil, fmtDate, fmtRange, plural, thumbOf, todayISO } from '../lib/util'
 import { BADGES, isEarned } from '../lib/badges'
+import { requestCapture } from '../lib/events'
 
 /** Home: greeting, Scout's postcard, the trip that matters, your numbers, and a strip of recent memories. */
 export function Home({ go }: { go: (p: Page, id?: string) => void }) {
@@ -58,9 +59,8 @@ export function Home({ go }: { go: (p: Page, id?: string) => void }) {
   const throwback = basket[dayIndex % Math.max(1, basket.length)]
 
   // What Scout says today: one thought, one link. "Later" rests the postcard until tomorrow.
-  const planNow: FoxAction = { label: <><Plane size={14} /> Plan a trip</>, onClick: () => go('trips', 'new:plan') }
-  const scout: { mood: 'happy' | 'sleepy' | 'excited' | 'wave' | 'think'; text: string; action?: FoxAction } = empty
-    ? { mood: 'wave', text: `Hi${name ? ' ' + name : ''}, I'm Scout. I keep track of where you've been and where you're going. Already on a trip? Start on the Trail and I'll set it up around today.`, action: { label: <><Compass size={14} /> I'm traveling now</>, onClick: () => go('trips', 'new:now') } }
+  const scout: { mood: 'happy' | 'sleepy' | 'excited' | 'wave' | 'think'; text: string; action?: FoxAction } | null = empty
+    ? { mood: 'wave', text: `Hi${name ? ' ' + name : ''}, I'm Scout. I keep your trips, places and memories in one spot, right on this device. Where shall we start?`, action: { label: <><Plane size={14} /> Plan a trip</>, onClick: () => go('trips', 'new:plan') } }
     : active
       ? { mood: 'excited', text: `Day ${daysBetween(active.startDate, today) + 1} of ${active.title}. Capture moments as you go and I'll sort the dates and places.`, action: { label: <><Camera size={14} /> Capture a moment</>, onClick: () => go('memories', `new:${active.id}`) } }
       : next && daysUntil(next.startDate) <= 3
@@ -75,7 +75,19 @@ export function Home({ go }: { go: (p: Page, id?: string) => void }) {
                 ? { mood: 'happy', text: `Remember ${throwback.title}? ${fmtDate(throwback.date, { year: 'numeric', month: 'long', day: undefined })}. Worth a look back today.`, action: { label: 'Take me back', onClick: () => go('memories', throwback.id) } }
                 : next
                   ? { mood: 'happy', text: `${plural(daysUntil(next.startDate), 'day')} until ${next.title}. Plenty of time to collect ideas.`, action: { label: <><Footprints size={14} /> Open the trail</>, onClick: () => go('trips', next.id) } }
-                  : { mood: 'think', text: 'Nothing on the calendar. Even a far-off idea counts.', action: planNow }
+                  : null // the "No trip on the horizon" card already says it; Scout stays quiet rather than repeat it
+  // Just back and not wrapped up: that outranks everything except being on a trip.
+  const ended = data.trips
+    .filter(t => t.status !== 'completed' && t.endDate && t.endDate < today && daysBetween(t.endDate, today) <= 30)
+    .sort((a, b) => b.endDate.localeCompare(a.endDate))[0]
+  // Wrapped up within two weeks and nothing saved from it yet: the photos are still fresh.
+  const bare = data.trips.find(t => t.status === 'completed' && t.endDate && daysBetween(t.endDate, today) >= 0 && daysBetween(t.endDate, today) <= 14 && !data.memories.some(m => m.tripId === t.id))
+  const say =
+    !active && ended
+      ? { mood: 'wave' as const, text: `Welcome back from ${ended.title}. Wrap it up and I'll stamp the places and count it toward your badges.`, action: { label: 'Wrap up the trip', onClick: () => go('trips', ended.id) } }
+      : !active && bare
+        ? { mood: 'happy' as const, text: `${bare.title} is in the books. Drop in a few photos while they're fresh and I'll file them under the trip.`, action: { label: <><Camera size={14} /> Add photos</>, onClick: () => requestCapture(bare.id) } }
+        : scout
   const rested = data.profile.postcardDismissed === today
   const rest = () => update(d => ({ ...d, profile: { ...d.profile, postcardDismissed: today } }))
 
@@ -93,14 +105,14 @@ export function Home({ go }: { go: (p: Page, id?: string) => void }) {
               '.'
             )}
           </h1>
-          <p className="subtitle">{empty ? 'Welcome. Pick any door below to get going.' : `You've logged ${plural(visited.length, 'place')} across ${plural(countries.size, 'country', 'countries')}.`}</p>
+          <p className="subtitle">{empty ? 'Welcome to TravelBud.' : `You've logged ${plural(visited.length, 'place')} across ${plural(countries.size, 'country', 'countries')}.`}</p>
         </div>
         <span className="hero-date">{fmtDate(today, { weekday: 'long' })}</span>
       </div>
 
-      {!rested && (
-        <FoxSays mood={scout.mood} actions={[...(scout.action ? [scout.action] : []), { label: 'Later', onClick: rest }]}>
-          {scout.text}
+      {!rested && say && (
+        <FoxSays mood={say.mood} actions={[...(say.action ? [say.action] : []), { label: 'Later', onClick: rest }]}>
+          {say.text}
         </FoxSays>
       )}
 
@@ -109,23 +121,26 @@ export function Home({ go }: { go: (p: Page, id?: string) => void }) {
 
       {empty && (
         <div className="welcome">
-          <button type="button" className="card welcome-step" onClick={() => go('places')}>
-            <span className="n">1</span>
-            <span className="ico"><MapIcon size={30} strokeWidth={1.6} /></span>
-            <b>Pin where you've been</b>
-            <span className="muted small">Search a city or tap the map. Countries, stamps and stats build from here.</span>
-          </button>
-          <button type="button" className="card welcome-step" onClick={() => go('memories', 'new')}>
-            <span className="n">2</span>
-            <span className="ico"><Camera size={30} strokeWidth={1.6} /></span>
-            <b>Drop in some photos</b>
-            <span className="muted small">Date and location fill in from the picture. Write a line or two.</span>
-          </button>
           <button type="button" className="card welcome-step" onClick={() => go('trips', 'new:plan')}>
-            <span className="n">3</span>
-            <span className="ico"><Plane size={30} strokeWidth={1.6} /></span>
-            <b>Plan the next one</b>
-            <span className="muted small">Dates, itinerary, packing, budget, and who's watching the house.</span>
+            <span className="ico"><Plane size={26} strokeWidth={1.8} /></span>
+            <span className="welcome-text">
+              <b>Plan a trip</b>
+              <span className="muted small">Where, when, and a packing list. Three short steps.</span>
+            </span>
+          </button>
+          <button type="button" className="card welcome-step" onClick={() => go('trips', 'new:now')}>
+            <span className="ico"><Compass size={26} strokeWidth={1.8} /></span>
+            <span className="welcome-text">
+              <b>I'm on a trip right now</b>
+              <span className="muted small">Scout sets it up around today so you can capture as you go.</span>
+            </span>
+          </button>
+          <button type="button" className="card welcome-step" onClick={() => go('places')}>
+            <span className="ico"><MapIcon size={26} strokeWidth={1.8} /></span>
+            <span className="welcome-text">
+              <b>Pin where you've been</b>
+              <span className="muted small">Each place earns a stamp. Countries and badges build from there.</span>
+            </span>
           </button>
         </div>
       )}
@@ -160,6 +175,7 @@ export function Home({ go }: { go: (p: Page, id?: string) => void }) {
         )
       )}
 
+      {!empty && (
       <StatStrip
         onPress={() => go('badges')}
         stats={[
@@ -169,6 +185,7 @@ export function Home({ go }: { go: (p: Page, id?: string) => void }) {
           { n: <CountUp n={badges} />, label: badges === 1 ? 'badge' : 'badges' },
         ]}
       />
+      )}
 
       {recent.length > 0 && (
         <section className="mem-strip">

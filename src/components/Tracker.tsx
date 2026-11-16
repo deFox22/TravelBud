@@ -3,6 +3,7 @@ import { Camera, CircleDollarSign, ListChecks, Pencil, Plus, StickyNote, Externa
 import { saveMapOffline, supportsOffline } from '../lib/offline'
 import type { Page, Photo, Trip } from '../lib/types'
 import { useStore } from '../lib/store'
+import { requestCapture } from '../lib/events'
 import { Progress, Ring } from './ui'
 
 const BASE = import.meta.env.BASE_URL
@@ -84,7 +85,7 @@ function along(t: number): [number, number] {
   return TRAIL[TRAIL.length - 1]
 }
 
-export function Tracker({ trip, go, onTab }: { trip: Trip; go: (p: Page, id?: string) => void; onTab?: (tab: 'itinerary' | 'packing' | 'budget') => void }) {
+export function Tracker({ trip, go, onTab }: { trip: Trip; go: (p: Page, id?: string) => void; onTab?: (tab: 'itinerary' | 'packing' | 'budget' | 'album') => void }) {
   const { data, update } = useStore()
   const today = todayISO()
   const hasDates = Boolean(trip.startDate && trip.endDate)
@@ -224,27 +225,46 @@ export function Tracker({ trip, go, onTab }: { trip: Trip; go: (p: Page, id?: st
   return (
     <section className="tracker card">
       <header className="tracker-head">
-        <div>
-          <span className="eyebrow">{phase === 'during' ? 'Happening now' : phase === 'after' ? 'Trip complete' : 'Coming up'}</span>
-          <h2>{trip.title}</h2>
-          <p className="muted">
-            {trip.destination}
-            {trip.destination && hasDates ? ' · ' : ''}
-            {hasDates ? `${fmtDate(trip.startDate, { year: undefined })} – ${fmtDate(trip.endDate)}` : ''}
-          </p>
-        </div>
+        {/* Inside the trip page the title is already on screen, so the tracker only shows its status. */}
+        {!onTab && (
+          <div>
+            <span className="eyebrow">{phase === 'during' ? 'Happening now' : phase === 'after' ? 'Trip complete' : 'Coming up'}</span>
+            <h2>{trip.title}</h2>
+            <p className="muted">
+              {trip.destination}
+              {trip.destination && hasDates ? ' · ' : ''}
+              {hasDates ? `${fmtDate(trip.startDate, { year: undefined })} – ${fmtDate(trip.endDate)}` : ''}
+            </p>
+          </div>
+        )}
         <div className="tracker-status">{status}</div>
       </header>
 
       {phase === 'during' && (
         <div className="tracker-actions">
-          <button type="button" className="btn primary" onClick={() => go('memories', `new:${trip.id}`)}>
+          <button type="button" className="btn primary" onClick={() => requestCapture(trip.id)}>
             <Camera size={16} /> Capture a moment
           </button>
-          <button type="button" className="btn" onClick={() => setExp(e => ({ ...e, open: !e.open }))}>
+          <button
+            type="button"
+            className={'btn' + (exp.open ? ' on' : '')}
+            aria-expanded={exp.open}
+            onClick={() => {
+              setNoteOpen(false)
+              setExp(e => ({ ...e, open: !e.open }))
+            }}
+          >
             <CircleDollarSign size={16} /> Log expense
           </button>
-          <button type="button" className="btn" onClick={() => setNoteOpen(v => !v)}>
+          <button
+            type="button"
+            className={'btn' + (noteOpen ? ' on' : '')}
+            aria-expanded={noteOpen}
+            onClick={() => {
+              setExp(e => ({ ...e, open: false }))
+              setNoteOpen(v => !v)
+            }}
+          >
             <StickyNote size={16} /> Quick note
           </button>
           {expDone && <span className="tracker-toast">✓ {expDone}</span>}
@@ -393,7 +413,7 @@ export function Tracker({ trip, go, onTab }: { trip: Trip; go: (p: Page, id?: st
               <Pencil size={14} /> Full itinerary
             </button>
             {phase !== 'during' && (
-              <button type="button" className="btn sm ghost" onClick={() => go('memories', `new:${trip.id}`)}>
+              <button type="button" className="btn sm ghost" onClick={() => requestCapture(trip.id)}>
                 <Camera size={14} /> Add a memory
               </button>
             )}
@@ -487,7 +507,7 @@ export function Tracker({ trip, go, onTab }: { trip: Trip; go: (p: Page, id?: st
               </div>
             </button>
           )}
-          <div className="tracker-stat">
+          <div className="tracker-stat mini">
             <ListChecks size={22} />
             <div>
               <div className="tracker-stat-n">
@@ -496,14 +516,14 @@ export function Tracker({ trip, go, onTab }: { trip: Trip; go: (p: Page, id?: st
               <div className="muted small">plans done</div>
             </div>
           </div>
-          <button type="button" className="tracker-stat" onClick={() => (onTab ? onTab('budget') : setExp(e => ({ ...e, open: true })))}>
+          <button type="button" className="tracker-stat mini" onClick={() => (onTab ? onTab('budget') : setExp(e => ({ ...e, open: true })))}>
             <CircleDollarSign size={22} />
             <div>
               <div className="tracker-stat-n">{fmtMoney(spent, trip.currency)}</div>
               <div className="muted small">{trip.budget ? `of ${fmtMoney(trip.budget, trip.currency)}` : 'spent'}</div>
             </div>
           </button>
-          <button type="button" className="tracker-stat" onClick={() => go('memories', `new:${trip.id}`)}>
+          <button type="button" className="tracker-stat mini" onClick={() => (onTab && memories.length ? onTab('album') : requestCapture(trip.id))}>
             <Camera size={22} />
             <div>
               <div className="tracker-stat-n">{memories.length}</div>

@@ -571,3 +571,67 @@ html, body { overflow-x: clip; }
   /* globe row keeps its text readable */
   .globe-row { grid-template-columns: 1fr 120px; padding-left: 16px; }
 }
+
+/* ======================================================================
+   Flow round: fewer decisions per screen, nothing said twice.
+   ====================================================================== */
+
+/* status: on the trail */
+.chip-status.active { background: var(--tb-primary-tint); color: var(--tb-number); }
+.chip-status.active svg { color: var(--tb-primary); }
+
+/* wizard: one field, then the pick */
+.search-row { position: relative; }
+.search-row-ico { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+.search-row .search-row-ico + input { padding-left: 42px; width: 100%; }
+.wizard-picked { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: var(--tb-radius-md); }
+.wizard-picked-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wizard-picked .btn { flex: none; }
+.geo-results { max-height: 46vh; overflow-y: auto; }
+
+/* wrap-up banner on a trip that is over */
+.wrap-up { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: var(--tb-primary-tint); }
+.wrap-up > svg { color: var(--tb-primary); flex: none; }
+.wrap-up-text { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.wrap-up-text b { color: var(--tb-number); }
+.wrap-up .btn { flex: none; }
+
+/* welcome doors: a short list, not numbered tiles */
+.welcome { display: flex; flex-direction: column; gap: 10px; }
+.welcome-step { flex-direction: row; align-items: center; gap: 14px; padding: 14px 16px; }
+.welcome-step .ico { width: 48px; height: 48px; flex: none; border-radius: var(--tb-radius-md); display: grid; place-items: center; background: var(--tb-primary-tint); color: var(--tb-number); }
+.welcome-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; text-align: left; }
+.welcome-text b { font-size: 16px; }
+@media (min-width: 881px) { .welcome { flex-direction: row; } .welcome-step { flex: 1; } }
+
+/* Me: the profile card is a button */
+button.me-head { width: 100%; border: 0; text-align: left; cursor: pointer; font: inherit; color: var(--ink); }
+.me-head-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.me-name { font: 800 30px/34px var(--font-display); color: var(--ink); }
+@media (max-width: 480px) { .me-name { font-size: 26px; line-height: 30px; } }
+
+/* tracker: the open panel's button looks pressed; inline panels fill the width */
+.tracker-actions .btn.on { background: var(--tb-primary-tint); color: var(--tb-number); box-shadow: none; }
+.tracker-head:not(:has(h2)) { justify-content: center; }
+.tracker-head:not(:has(h2)) .tracker-status { width: 100%; text-align: center; }
+.tch-actions { display: grid; grid-template-columns: 1fr auto; }
+.tch-actions .btn { justify-content: center; }
+.photo-pick label { min-width: 0; flex: 1 1 140px; white-space: normal; text-align: center; line-height: 1.2; }
+
+@media (max-width: 880px) {
+  .tracker-inline { flex-wrap: wrap; }
+  .tracker-inline input[type='text'] { flex: 1 1 100%; }
+  .tracker-inline input[type='number'], .tracker-inline select { flex: 1 1 0; min-width: 0; max-width: none !important; width: auto; }
+  .tracker-inline .btn { flex: 1 1 100%; height: 44px; justify-content: center; }
+  /* three small numbers in one row, the stay card and offline button full width */
+  .tracker-side { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .tracker-side > * { grid-column: 1 / -1; }
+  .tracker-side > .tracker-stat.mini { grid-column: auto; flex-direction: column; align-items: center; text-align: center; gap: 4px; padding: 12px 6px; }
+  .tracker-side > .tracker-stat.mini .tracker-stat-n { font-size: 18px; }
+  .modal .form .row > .field { flex: 1 1 140px; min-width: 0; }
+}
+
+@media (max-width: 880px) {
+  .tracker-actions { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .tracker-actions .btn { min-width: 0; padding-left: 8px; padding-right: 8px; justify-content: center; }
+}

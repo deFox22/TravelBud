@@ -65,8 +65,9 @@ export function QuickCapture({ tripId, onClose, onOpen }: { tripId?: string; onC
   }
 
   const build = (): Memory => {
-    const day = trip ? daysBetween(trip.startDate, date) + 1 : 0
-    const fallback = trip ? `Day ${day} · ${trip.destination || trip.title}` : nearest ? `A moment in ${nearest.name}` : `Moment on ${fmtDate(date)}`
+    const inTrip = Boolean(trip && trip.startDate && date >= trip.startDate && date <= trip.endDate)
+    const day = trip && inTrip ? daysBetween(trip.startDate, date) + 1 : 0
+    const fallback = trip && inTrip ? `Day ${day} · ${trip.destination || trip.title}` : trip ? trip.title : nearest ? `A moment in ${nearest.name}` : `Moment on ${fmtDate(date)}`
     return {
       id: uid(),
       title: line.trim() || fallback,

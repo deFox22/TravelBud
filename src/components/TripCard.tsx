@@ -23,7 +23,7 @@ export function TripCard({ trip, go }: { trip: Trip; go: (p: Page, id?: string) 
       ) : (
         <TrailArt className="tch-art" />
       )}
-      <StatusChip status={trip.status} className="tch-chip" />
+      <StatusChip status={active ? 'active' : trip.status} className="tch-chip" />
       <div className="tch-body">
         <p className="eyebrow">{overline}</p>
         <h2>{active ? headline : trip.title}</h2>

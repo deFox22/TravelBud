@@ -40,14 +40,14 @@ export function Me({ go, openSettings }: { go: (p: Page, id?: string) => void; o
     })
   return (
     <div className="page">
-      <div className="me-head card">
+      <button type="button" className="me-head card" onClick={openSettings} aria-label="Edit your profile">
         <Fox variant="ranger" size={120} />
-        <div>
-          <p className="eyebrow">Ranger</p>
-          <h1>{data.profile.name || 'Traveler'}</h1>
-          <p className="muted">{data.profile.homeBase ? `Home base ${data.profile.homeBase}` : 'Set your name and home base in Settings'}</p>
-        </div>
-      </div>
+        <span className="me-head-text">
+          <span className="eyebrow">Ranger</span>
+          <span className="me-name">{data.profile.name || 'Traveler'}</span>
+          <span className="muted">{data.profile.homeBase ? `Home base ${data.profile.homeBase}` : 'Tap to add your name and home base'}</span>
+        </span>
+      </button>
       <StatStrip
         stats={[
           { n: <CountUp n={countries} />, label: countries === 1 ? 'country' : 'countries' },

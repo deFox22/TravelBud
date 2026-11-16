@@ -8,7 +8,7 @@ import { shareUrl } from '../lib/share'
 import { Tracker } from '../components/Tracker'
 import { TripWizard, type WizardMode } from '../components/TripWizard'
 import { EXPENSE_CATS, PACK_TEMPLATES } from '../lib/templates'
-import { Plus, Share2, Printer, Play, ArrowLeft, Pencil, Trash2, Compass, ExternalLink, MapPin, Wifi, KeyRound, Images, Ellipsis, X } from 'lucide-react'
+import { Plus, Share2, Printer, Play, ArrowLeft, Pencil, Trash2, Compass, ExternalLink, MapPin, Wifi, KeyRound, Images, Ellipsis, X, Flag } from 'lucide-react'
 import { TrailArt } from '../components/TripCard'
 
 const party = () =>
@@ -142,7 +142,8 @@ function TripGroup({ title, trips, onOpen, variant, coverFor }: { title: string;
           const nights = t.startDate && t.endDate ? daysBetween(t.startDate, t.endDate) : null
           const cv = coverFor(t)
           const coverSrc = typeof cv === 'string' ? cv : cv ? (cv.thumb ?? cv.dataUrl) : undefined
-          const label = variant === 'past' && t.status !== 'completed' ? 'Past' : STATUS[t.status].label
+          const live = t.status !== 'completed' && d !== null && d <= 0 && !!t.endDate && daysUntil(t.endDate) >= 0
+          const label = live ? 'On the trail' : variant === 'past' && t.status !== 'completed' ? 'Past' : STATUS[t.status].label
           return (
             <button type="button" key={t.id} className={'card trip-card ' + (variant ?? '')} onClick={() => onOpen(t.id)}>
               <div className="cover-wrap">
@@ -318,6 +319,25 @@ function TripDetail({ trip, onBack, go }: { trip: Trip; onBack: () => void; go: 
   const packed = trip.packing.filter(p => p.packed).length
 
   const isPast = trip.status === 'completed' || (!!trip.endDate && trip.endDate < todayISO())
+  const isActive = trip.status !== 'completed' && !!trip.startDate && !!trip.endDate && trip.startDate <= todayISO() && trip.endDate >= todayISO()
+  // Last day or later, and not wrapped up yet: offer the finish line at the top instead of burying it.
+  const canWrapUp = trip.status !== 'completed' && !!trip.endDate && trip.endDate <= todayISO()
+
+  const complete = () => {
+    party()
+    patch({ status: 'completed' })
+    if (trip.placeIds.length) {
+      const fresh = data.places.filter(p => trip.placeIds.includes(p.id) && p.status !== 'visited').map(p => p.id)
+      update(d => ({ ...d, places: d.places.map(p => (trip.placeIds.includes(p.id) ? { ...p, status: 'visited', firstVisited: p.firstVisited ?? trip.startDate ?? undefined } : p)) }))
+      fresh.forEach((id, i) => setTimeout(() => announceStamp(id), 900 + i * 2700))
+    }
+    if (sitter && trip.startDate && trip.endDate && !sitter.stints.some(s => s.tripId === trip.id)) {
+      update(d => ({
+        ...d,
+        sitters: d.sitters.map(s => (s.id === sitter.id ? { ...s, stints: [...s.stints, { id: uid(), from: trip.startDate, to: trip.endDate, tripId: trip.id, notes: '' }] } : s)),
+      }))
+    }
+  }
   const tabs: { id: Tab; label: string; n?: number }[] = [
     { id: 'trail', label: 'Trail' },
     { id: 'overview', label: 'Overview' },
@@ -336,7 +356,7 @@ function TripDetail({ trip, onBack, go }: { trip: Trip; onBack: () => void; go: 
         <div style={{ flex: 1, minWidth: 200 }}>
           <div className="pills" style={{ gap: 10 }}>
             <h1>{trip.title}</h1>
-            <StatusChip status={isPast && trip.status !== 'completed' ? 'past' : trip.status} />
+            <StatusChip status={isActive ? 'active' : isPast && trip.status !== 'completed' ? 'past' : trip.status} />
           </div>
           <p className="subtitle">
             {trip.destination || 'Destination TBD'} · {fmtRange(trip.startDate, trip.endDate)}
@@ -395,6 +415,19 @@ function TripDetail({ trip, onBack, go }: { trip: Trip; onBack: () => void; go: 
           </button>
         ))}
       </div>
+
+      {canWrapUp && (
+        <div className="card wrap-up">
+          <Flag size={22} />
+          <div className="wrap-up-text">
+            <b>{trip.endDate === todayISO() ? 'Last day. Back home yet?' : 'Back home?'}</b>
+            <span className="muted small">Wrapping up stamps the places and counts the trip toward your badges.</span>
+          </div>
+          <button type="button" className="btn primary sm" onClick={complete}>
+            Wrap up
+          </button>
+        </div>
+      )}
 
       {tab === 'overview' && (
         <div className="two-col">
@@ -506,21 +539,7 @@ function TripDetail({ trip, onBack, go }: { trip: Trip; onBack: () => void; go: 
                 <button
                   type="button"
                   className="btn primary"
-                  onClick={() => {
-                    party()
-                    patch({ status: 'completed' })
-                    if (trip.placeIds.length) {
-                      const fresh = data.places.filter(p => trip.placeIds.includes(p.id) && p.status !== 'visited').map(p => p.id)
-                      update(d => ({ ...d, places: d.places.map(p => (trip.placeIds.includes(p.id) ? { ...p, status: 'visited', firstVisited: p.firstVisited ?? trip.startDate ?? undefined } : p)) }))
-                      fresh.forEach((id, i) => setTimeout(() => announceStamp(id), 900 + i * 2700))
-                    }
-                    if (sitter && trip.startDate && trip.endDate && !sitter.stints.some(s => s.tripId === trip.id)) {
-                      update(d => ({
-                        ...d,
-                        sitters: d.sitters.map(s => (s.id === sitter.id ? { ...s, stints: [...s.stints, { id: uid(), from: trip.startDate, to: trip.endDate, tripId: trip.id, notes: '' }] } : s)),
-                      }))
-                    }
-                  }}
+                  onClick={complete}
                 >
                   Mark trip completed
                 </button>

@@ -10,3 +10,14 @@ export function onStamp(fn: (placeId: string) => void): () => void {
   window.addEventListener(STAMP, h)
   return () => window.removeEventListener(STAMP, h)
 }
+
+const CAPTURE = 'tb:capture'
+
+/** Open the quick-capture sheet from anywhere, optionally tied to a trip, without leaving the page you are on. */
+export const requestCapture = (tripId?: string) => window.dispatchEvent(new CustomEvent(CAPTURE, { detail: tripId ?? '' }))
+
+export function onCaptureRequest(fn: (tripId?: string) => void): () => void {
+  const h = (e: Event) => fn((e as CustomEvent<string>).detail || undefined)
+  window.addEventListener(CAPTURE, h)
+  return () => window.removeEventListener(CAPTURE, h)
+}

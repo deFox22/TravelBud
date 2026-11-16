@@ -19,6 +19,7 @@ import { Palette } from './components/Palette'
 import { UnlockToast } from './components/Toast'
 import { QuickCapture } from './components/QuickCapture'
 import { StampSlam } from './components/StampSlam'
+import { onCaptureRequest } from './lib/events'
 import { BADGES, earnedIds, type BadgeDef } from './lib/badges'
 import { Home as HomeIcon, Camera, Map as MapIcon, Route, Award, User, KeyRound, IdCard, ChartColumn, Settings as SettingsIcon, Search, type LucideIcon } from 'lucide-react'
 import { todayISO } from './lib/util'
@@ -47,7 +48,8 @@ export default function App() {
   const [shared, setShared] = useState<Trip | null>(() => readShareFromUrl())
   const [incoming, setIncoming] = useState<AppData | null>(() => readTransferFromUrl())
   const [toasts, setToasts] = useState<BadgeDef[]>([])
-  const [capture, setCapture] = useState(false)
+  const [capture, setCapture] = useState<{ tripId?: string } | null>(null)
+  useEffect(() => onCaptureRequest(tripId => setCapture({ tripId })), [])
 
   // Theme: 'auto' leaves it to the OS, otherwise pin it on <html>.
   const theme = data.profile.theme
@@ -199,7 +201,7 @@ export default function App() {
         })}
       </nav>
 
-      <button type="button" className="fab" aria-label="Capture a moment" title="Capture a moment" onClick={() => setCapture(true)}>
+      <button type="button" className="fab" aria-label="Capture a moment" title="Capture a moment" onClick={() => setCapture({ tripId: activeTrip?.id })}>
         <Camera size={26} strokeWidth={2.2} />
       </button>
       <span className="fab-label">Capture</span>
@@ -217,10 +219,10 @@ export default function App() {
       )}
       {capture && (
         <QuickCapture
-          tripId={activeTrip?.id}
-          onClose={() => setCapture(false)}
+          tripId={capture.tripId}
+          onClose={() => setCapture(null)}
           onOpen={id => {
-            setCapture(false)
+            setCapture(null)
             go('memories', id)
           }}
         />

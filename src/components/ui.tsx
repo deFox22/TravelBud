@@ -1,9 +1,10 @@
 import { useEffect, useState, type ReactNode, type KeyboardEvent } from 'react'
-import { CalendarClock, CircleCheckBig, Sparkles, Ticket, History, type LucideIcon } from 'lucide-react'
+import { CalendarClock, CircleCheckBig, Sparkles, Ticket, History, Footprints, type LucideIcon } from 'lucide-react'
 import { Fox } from './Fox'
 
 /** B18-A trip status chip: soft tint + Lucide icon + label. */
-const CHIP: Record<'dreaming' | 'planning' | 'booked' | 'completed' | 'past', { label: string; Icon: LucideIcon }> = {
+const CHIP: Record<'dreaming' | 'planning' | 'booked' | 'completed' | 'past' | 'active', { label: string; Icon: LucideIcon }> = {
+  active: { label: 'On the trail', Icon: Footprints },
   dreaming: { label: 'Dreaming', Icon: Sparkles },
   planning: { label: 'Planning', Icon: CalendarClock },
   booked: { label: 'Booked', Icon: Ticket },

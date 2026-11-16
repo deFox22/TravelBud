@@ -205,6 +205,7 @@ function MemoryForm({ initial, preset, places, trips, onSave, onClose }: { initi
         favorite: false,
         createdAt: new Date().toISOString(),
         ...preset,
+        ...placeFromTrip(preset, trips, places),
       },
   )
   const [dirty, setDirty] = useState(false)
@@ -573,6 +574,14 @@ function Timeline({ list, onOpen, placeOf }: { list: Memory[]; onOpen: (id: stri
       ))}
     </div>
   )
+}
+
+/** A memory that starts from a trip is almost always at that trip's place. */
+function placeFromTrip(preset: Partial<Memory> | undefined, trips: Trip[], places: Place[]): Partial<Memory> {
+  if (!preset?.tripId || preset.placeId) return {}
+  const t = trips.find(x => x.id === preset.tripId)
+  const p = t ? places.find(x => t.placeIds.includes(x.id)) : undefined
+  return p ? { placeId: p.id, locationText: [p.name, p.country].filter(Boolean).join(', ') } : {}
 }
 
 /** 'new' opens a blank memory; 'new:<tripId>' links it to that trip. */
