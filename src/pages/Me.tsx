@@ -1,5 +1,7 @@
-import { useEffect, useState } from 'react'
-import { Camera, ChartColumn, ChevronRight, IdCard, KeyRound, Settings as SettingsIcon, Share2, Smartphone, X, type LucideIcon } from 'lucide-react'
+import { useEffect, useState, useSyncExternalStore } from 'react'
+import { Camera, ChartColumn, ChevronRight, IdCard, KeyRound, Settings as SettingsIcon, Share2, Smartphone, X, Search, ShieldAlert, type LucideIcon } from 'lucide-react'
+import { requestSearch } from '../lib/events'
+import { getPersistState, onPersistChange } from '../lib/persist'
 import { backupDueAfterDays, shareBackup, supportsFolderBackup } from '../lib/backup'
 import { canPromptInstall, dismissHomeScreenTip, homeScreenTipDismissed, isIOS, isStandalone, onInstallChange, promptInstall } from '../lib/pwa'
 import type { Page } from '../lib/types'
@@ -21,7 +23,18 @@ export function Me({ go, openSettings }: { go: (p: Page, id?: string) => void; o
   const backupDue = since === null || since > backupDueAfterDays()
   const countries = new Set(visitedPlaces(data).map(p => p.country).filter(Boolean)).size
   const badges = BADGES.filter(b => isEarned(b, data)).length
+  // Storage the browser has not promised to keep. On an iPhone outside the Home Screen that is a real risk, so it always shows there;
+  // elsewhere it only speaks up when a backup is also overdue.
+  const persist = useSyncExternalStore(onPersistChange, getPersistState)
+  const hasData = data.trips.length + data.memories.length + data.places.length + data.docs.length > 0
+  const iosTab = isIOS() && !isStandalone()
+  const atRisk = hasData && (persist === 'best-effort' || persist === 'unsupported') && (iosTab || backupDue)
+  const backUp = async () => {
+    const how = await shareBackup(data)
+    if (how !== 'cancelled') update(d => ({ ...d, profile: { ...d.profile, lastBackup: todayISO() } }))
+  }
   const rows: { icon: LucideIcon; label: string; sub: string; onClick: () => void }[] = [
+    { icon: Search, label: 'Search', sub: 'Trips, memories, places, people, documents', onClick: requestSearch },
     { icon: Camera, label: 'Memories', sub: plural(data.memories.length, 'memory', 'memories'), onClick: () => go('memories') },
     { icon: IdCard, label: 'Travel wallet', sub: `${plural(data.docs.length, 'document')} · ${plural(data.loyalty.length, 'program')} · ${plural(data.contacts.length, 'contact')}`, onClick: () => go('wallet') },
     { icon: KeyRound, label: 'Sitters & home guide', sub: data.sitters.length ? plural(data.sitters.length, 'trusted person', 'trusted people') : 'Who watches the house', onClick: () => go('sitters') },
@@ -29,14 +42,11 @@ export function Me({ go, openSettings }: { go: (p: Page, id?: string) => void; o
     { icon: SettingsIcon, label: 'Settings & backup', sub: data.profile.lastBackup ? `Last backup ${fmtDate(data.profile.lastBackup)}` : 'Theme, export, import', onClick: openSettings },
   ]
   if (!supportsFolderBackup())
-    rows.splice(4, 0, {
+    rows.splice(5, 0, {
       icon: Share2,
       label: 'Back up now',
       sub: backupDue ? (since === null ? 'No backup yet: hand a copy to Files or iCloud Drive' : `Due: last one ${plural(since, 'day')} ago`) : `Last backup ${fmtDate(data.profile.lastBackup)} · weekly is plenty`,
-      onClick: async () => {
-        const how = await shareBackup(data)
-        if (how !== 'cancelled') update(d => ({ ...d, profile: { ...d.profile, lastBackup: todayISO() } }))
-      },
+      onClick: backUp,
     })
   return (
     <div className="page">
@@ -57,7 +67,23 @@ export function Me({ go, openSettings }: { go: (p: Page, id?: string) => void; o
         ]}
         onPress={() => go('badges')}
       />
-      {tip && (
+      {atRisk && (
+        <div className="card storage-risk" role="status">
+          <ShieldAlert size={22} />
+          <div className="storage-risk-text">
+            <b>{iosTab ? 'Safari may clear your data' : 'This browser may clear your data'}</b>
+            <span className="small">
+              {iosTab
+                ? 'Websites lose their saved data after about a week unopened. Put TravelBud on your Home Screen to keep it: tap Share, then Add to Home Screen.'
+                : 'It has not promised to keep what TravelBud saves here. Installing the app or keeping a recent backup protects it.'}
+            </span>
+          </div>
+          <button type="button" className="btn primary sm" onClick={() => void backUp()}>
+            Back up
+          </button>
+        </div>
+      )}
+      {tip && !atRisk && (
         <div className="card pad home-tip">
           <Smartphone size={22} />
           <div>

@@ -635,3 +635,16 @@ button.me-head { width: 100%; border: 0; text-align: left; cursor: pointer; font
   .tracker-actions { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   .tracker-actions .btn { min-width: 0; padding-left: 8px; padding-right: 8px; justify-content: center; }
 }
+
+/* ---------- search on phones, storage warning ---------- */
+.hero-greet { position: relative; }
+.hero-search { display: none; }
+@media (max-width: 880px) {
+  .hero-search { display: grid; place-items: center; position: absolute; top: 0; right: 0; width: 44px; height: 44px; border: 0; border-radius: 50%; background: var(--tb-fill); color: var(--ink); cursor: pointer; box-shadow: var(--tb-shadow-button); }
+  .hero-greet h1 { padding-right: 52px; }
+}
+.storage-risk { display: flex; align-items: flex-start; gap: 12px; padding: 14px; background: var(--tb-chip-planning-bg); color: var(--tb-chip-planning-fg); }
+.storage-risk > svg { flex: none; margin-top: 2px; }
+.storage-risk-text { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0; }
+.storage-risk-text b { font-size: 15px; }
+.storage-risk .btn { flex: none; align-self: center; }

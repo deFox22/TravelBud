@@ -21,3 +21,13 @@ export function onCaptureRequest(fn: (tripId?: string) => void): () => void {
   window.addEventListener(CAPTURE, h)
   return () => window.removeEventListener(CAPTURE, h)
 }
+
+const SEARCH = 'tb:search'
+
+/** Open search from anywhere. Phones have no sidebar box and no Ctrl+K. */
+export const requestSearch = () => window.dispatchEvent(new Event(SEARCH))
+
+export function onSearchRequest(fn: () => void): () => void {
+  window.addEventListener(SEARCH, fn)
+  return () => window.removeEventListener(SEARCH, fn)
+}

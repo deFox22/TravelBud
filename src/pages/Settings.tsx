@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
+import { getPersistState, onPersistChange } from '../lib/persist'
 import type { AppData, Theme } from '../lib/types'
 import { emptyData, normalize, useStore } from '../lib/store'
 import { Field, Modal } from '../components/ui'
@@ -14,6 +15,7 @@ export function Settings({ onClose }: { onClose: () => void }) {
   const [msg, setMsg] = useState('')
   const [qr, setQr] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
+  const persist = useSyncExternalStore(onPersistChange, getPersistState)
 
   const exportJson = async (photos = true) => {
     const how = await shareBackup(data, { photos })
@@ -132,6 +134,13 @@ export function Settings({ onClose }: { onClose: () => void }) {
           <p className="muted small">
             Everything lives in this browser on this device: {plural(data.places.length, 'place')}, {plural(data.memories.length, 'memory', 'memories')}, {plural(data.trips.length, 'trip')}, {plural(data.sitters.length, 'sitter')}, and {plural(photoCount, 'photo')}. Nothing is uploaded anywhere. Export a backup now and then, and to move to another device.
           </p>
+          {persist !== 'unknown' && (
+            <p className="small" style={{ marginTop: 6, color: persist === 'persisted' ? 'var(--tb-link)' : 'var(--tb-chip-planning-fg)' }}>
+              {persist === 'persisted'
+                ? 'Storage is protected: the browser has agreed to keep this data until you remove it.'
+                : 'Storage is not protected: the browser may clear this data if space runs low or the site goes unused. Keep a backup.'}
+            </p>
+          )}
         </div>
         <div className="btn-pair">
           <button type="button" className="btn primary" onClick={() => exportJson(true)}>

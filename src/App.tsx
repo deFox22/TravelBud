@@ -19,7 +19,9 @@ import { Palette } from './components/Palette'
 import { UnlockToast } from './components/Toast'
 import { QuickCapture } from './components/QuickCapture'
 import { StampSlam } from './components/StampSlam'
-import { onCaptureRequest } from './lib/events'
+import { onCaptureRequest, onSearchRequest } from './lib/events'
+import { ensurePersistent } from './lib/persist'
+import { onInstallChange } from './lib/pwa'
 import { BADGES, earnedIds, type BadgeDef } from './lib/badges'
 import { Home as HomeIcon, Camera, Map as MapIcon, Route, Award, User, KeyRound, IdCard, ChartColumn, Settings as SettingsIcon, Search, type LucideIcon } from 'lucide-react'
 import { todayISO } from './lib/util'
@@ -50,6 +52,15 @@ export default function App() {
   const [toasts, setToasts] = useState<BadgeDef[]>([])
   const [capture, setCapture] = useState<{ tripId?: string } | null>(null)
   useEffect(() => onCaptureRequest(tripId => setCapture({ tripId })), [])
+  useEffect(() => onSearchRequest(() => setPaletteOpen(true)), [])
+
+  // Once there is something worth keeping, ask the browser not to throw it away. Ask again after an install.
+  const hasData = data.trips.length + data.memories.length + data.places.length + data.docs.length > 0
+  useEffect(() => {
+    if (!ready || !hasData) return
+    void ensurePersistent()
+    return onInstallChange(() => void ensurePersistent())
+  }, [ready, hasData])
 
   // Theme: 'auto' leaves it to the OS, otherwise pin it on <html>.
   const theme = data.profile.theme

@@ -3,7 +3,7 @@ import type { Page } from '../lib/types'
 import { useStore } from '../lib/store'
 import { CountUp, StatStrip } from '../components/ui'
 import { TripCard } from '../components/TripCard'
-import { Camera, Map as MapIcon, Plane, Compass, Backpack, CircleDollarSign, Award, Footprints, Share2, NotebookPen, ShieldCheck } from 'lucide-react'
+import { Camera, Map as MapIcon, Plane, Compass, Backpack, CircleDollarSign, Award, Footprints, Share2, NotebookPen, ShieldCheck, Search } from 'lucide-react'
 import { FoxSays, type FoxAction } from '../components/Fox'
 import { backupDueAfterDays, backupPermission, getBackupFolder, requestBackupPermission, shareBackup, supportsFolderBackup } from '../lib/backup'
 
@@ -11,7 +11,7 @@ const WorldGlobe = lazy(() => import('../components/Globe'))
 import { DOC_KINDS, docStatus } from './Wallet'
 import { addDays, daysBetween, daysUntil, fmtDate, fmtRange, plural, thumbOf, todayISO } from '../lib/util'
 import { BADGES, isEarned } from '../lib/badges'
-import { requestCapture } from '../lib/events'
+import { requestCapture, requestSearch } from '../lib/events'
 
 /** Home: greeting, Scout's postcard, the trip that matters, your numbers, and a strip of recent memories. */
 export function Home({ go }: { go: (p: Page, id?: string) => void }) {
@@ -108,6 +108,9 @@ export function Home({ go }: { go: (p: Page, id?: string) => void }) {
           <p className="subtitle">{empty ? 'Welcome to TravelBud.' : `You've logged ${plural(visited.length, 'place')} across ${plural(countries.size, 'country', 'countries')}.`}</p>
         </div>
         <span className="hero-date">{fmtDate(today, { weekday: 'long' })}</span>
+        <button type="button" className="hero-search" aria-label="Search everything" title="Search" onClick={requestSearch}>
+          <Search size={20} strokeWidth={2.2} />
+        </button>
       </div>
 
       {!rested && say && (
